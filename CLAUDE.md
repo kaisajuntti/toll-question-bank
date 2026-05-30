@@ -21,8 +21,14 @@ A standalone single-file HTML tool (`index.html`) for managing all quiz content 
 ## Pack structure
 Categories: School 📚 / Languages 🌐 / Popular 🌍 / IQ 🧠 / Specials ⭐
 Each pack has levels. Each level has questions.
-Question format: { id, q, answers[], correct (index) }
+Standard question format: { id, q, answers[], correct (index) }
+Quotes question format: { id, quote, author } — used when pack.special === "quotes"
 Custom pack extra fields: { userDescription, generationInstructions, icon, custom: true }
+
+## Special pack types
+- `binary` — 2-answer Yes/No questions (e.g. The Idiot Question)
+- `bluff` — 3 statements, spot the lie (e.g. Bluff)
+- `quotes` — no multiple choice; format is { id, quote, author } throughout (display, add/edit forms, AI generation, export)
 
 ## Key architecture notes
 - `PACKS` array is `const` but mutable — custom packs are pushed at runtime
@@ -54,6 +60,7 @@ See `buildPackJSON()` — includes:
 - `icon`: pack.icon || cat.icon
 - Per-level `defaultQuestions` and `defaultTime` from stored levelDefaults
 - `algorithmic`, `special` fields
+- Questions exported as `{ id, question, answers, correctIndex }` for normal packs, or `{ id, quote, author }` for quotes packs
 
 ## Manifest export
 `exportManifest()` → manifest.json with version, generated date, and summary entry per pack
@@ -85,3 +92,4 @@ See `buildPackJSON()` — includes:
 - **Add All fixed**: was broken by apostrophes in JSON-in-onclick; now uses window._pendingQs + addPendingQs()
 - **AI panel**: label renamed to "AI generation instructions"; save button always visible; resize handle removed
 - **Pack instruction overrides**: toll_pack_instructions persists instructions for any pack across reloads
+- **Mindful Quotes pack**: new `special: "quotes"` type — { id, quote, author } format throughout; AI prompt generates mindful quotes; display shows italic quote + author; add/edit forms have quote textarea + author input; export uses quotes shape
