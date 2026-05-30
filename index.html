@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.6</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.7</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1205,8 +1205,8 @@ body {
       </div>
       <div class="field">
         <label>AI generation instructions</label>
-        <textarea id="gInstructions" placeholder="e.g. Focus on European capitals, avoid very obscure answers, questions in Swedish..." oninput="onInstructionsEdit()"></textarea>
-        <button id="saveInstrBtn" onclick="savePackInstructions()" style="display:none;margin-top:6px;padding:5px 12px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-mid);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s" onmouseover="this.style.borderColor='var(--border-hover)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)'">Save instructions</button>
+        <textarea id="gInstructions" placeholder="e.g. Focus on European capitals, avoid very obscure answers, questions in Swedish..." style="resize:none"></textarea>
+        <button id="saveInstrBtn" onclick="savePackInstructions()" style="margin-top:6px;padding:5px 12px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-mid);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s" onmouseover="this.style.borderColor='var(--border-hover)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)'">Save instructions</button>
       </div>
       <button class="btn-generate" id="genBtn" onclick="generateAI()">
         <span id="genBtnText">✦ Generate with AI</span>
@@ -1669,7 +1669,6 @@ function onPackChange() {
 
   document.getElementById('previewArea').innerHTML = '';
   document.getElementById('gInstructions').value = pack.generationInstructions || '';
-  document.getElementById('saveInstrBtn').style.display = 'none';
 }
 
 // ═══════════════════════════════════════════════════
@@ -2158,15 +2157,6 @@ function loadPackInstructions() {
       });
     }
   } catch(e) {}
-}
-
-function onInstructionsEdit() {
-  const packId = document.getElementById('gPack').value;
-  const pack = PACKS.find(p => p.id === packId);
-  if (!pack) return;
-  const current = pack.generationInstructions || '';
-  const edited = document.getElementById('gInstructions').value;
-  document.getElementById('saveInstrBtn').style.display = edited !== current ? 'block' : 'none';
 }
 
 function savePackInstructions() {
