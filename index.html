@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.9</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.10</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1503,6 +1503,7 @@ function renderMain() {
                <button class="btn btn-ai" id="btnGenAll" onclick="generateAllLevels()"${state.generatingAll ? ' disabled style="opacity:0.6;cursor:not-allowed"' : ''}>
                  ${state.generatingAll ? '<span class="spinner"></span>' : '✦ All Levels'}
                </button>`}
+          <button class="btn btn-secondary" onclick="clearAllLevels()" style="color:var(--red);border-color:rgba(224,92,74,0.25)" onmouseover="this.style.borderColor='rgba(224,92,74,0.5)'" onmouseout="this.style.borderColor='rgba(224,92,74,0.25)'">Clear All</button>
           <button class="btn btn-secondary" onclick="exportPack()">Export JSON</button>
           <button class="btn btn-secondary" onclick="exportManifest()">Manifest</button>
         </div>
@@ -1519,8 +1520,9 @@ function renderMain() {
 
   pack.levels.forEach((lName, i) => {
     const lCount = levels[i].length;
-    html += `<div class="level-tab ${i===state.levelIdx?'active':''}" onclick="selectLevel(${i})">
-      ${lName} <span class="tab-count">${lCount}</span>
+    html += `<div class="level-tab ${i===state.levelIdx?'active':''}" onclick="selectLevel(${i})" style="display:flex;align-items:center;gap:5px;padding-right:6px">
+      <span>${lName}</span> <span class="tab-count">${lCount}</span>
+      <button onclick="event.stopPropagation();clearLevel(${i})" title="Clear level" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;line-height:1;padding:1px 2px;border-radius:3px;transition:color 0.15s;margin-left:1px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-dim)'">×</button>
     </div>`;
   });
 
@@ -1659,6 +1661,35 @@ function delQ(qid) {
   renderSidebar();
   renderMain();
   toast("Deleted", "");
+}
+
+function clearLevel(levelIdx) {
+  if (!state.packId) return;
+  const pack = PACKS.find(p => p.id === state.packId);
+  const lName = pack.levels[levelIdx];
+  if (!confirm(`Delete all questions in "${lName}"?`)) return;
+  QB[state.packId][levelIdx] = [];
+  save();
+  state.editingQid = null;
+  state.addingQ = false;
+  if (state.levelIdx === levelIdx) state.search = "";
+  renderSidebar();
+  renderMain();
+  toast(`Cleared "${lName}"`, "");
+}
+
+function clearAllLevels() {
+  if (!state.packId) return;
+  const pack = PACKS.find(p => p.id === state.packId);
+  if (!confirm(`Delete all questions in all levels of "${pack.name}"?`)) return;
+  QB[state.packId] = pack.levels.map(() => []);
+  save();
+  state.editingQid = null;
+  state.addingQ = false;
+  state.search = "";
+  renderSidebar();
+  renderMain();
+  toast(`Cleared all levels`, "");
 }
 
 // ═══════════════════════════════════════════════════
@@ -1832,16 +1863,15 @@ async function generateAllLevels() {
   const apiKey = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem('toll_api_key') || '';
   if (!apiKey || !apiKey.startsWith('sk-')) { toast("Set your API key in ✦ Generate first", "error"); return; }
 
-  const emptyLevels = pack.levels.map((name, i) => ({ name, i })).filter(l => QB[pack.id][l.i].length === 0);
-  if (!emptyLevels.length) { toast("All levels already have questions", ""); return; }
+  const allLevels = pack.levels.map((name, i) => ({ name, i }));
 
   state.generatingAll = true;
   renderMain();
 
-  for (let j = 0; j < emptyLevels.length; j++) {
-    const { name, i } = emptyLevels[j];
+  for (let j = 0; j < allLevels.length; j++) {
+    const { name, i } = allLevels[j];
     const btn = document.getElementById('btnGenAll');
-    if (btn) btn.innerHTML = `<span class="spinner"></span> ${name} (${j+1}/${emptyLevels.length})`;
+    if (btn) btn.innerHTML = `<span class="spinner"></span> ${name} (${j+1}/${allLevels.length})`;
     try {
       await generateAIForLevel(pack, i, apiKey);
     } catch(e) {
