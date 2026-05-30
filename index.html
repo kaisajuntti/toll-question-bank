@@ -876,6 +876,8 @@ body {
       <div class="header-stat-num" id="totalP">0</div>
       <div class="header-stat-label">Packs</div>
     </div>
+    <button class="btn-header" onclick="backup()">Backup ↓</button>
+    <button class="btn-header" style="border-color:rgba(196,163,90,0.5)" onclick="document.getElementById('restoreInput').click()">Restore ↑</button>
     <button class="btn-header ai" onclick="openPanel()">✦ Generate</button>
     <button class="btn-header" onclick="exportAll()">Export All JSON</button>
   </div>
@@ -979,6 +981,7 @@ body {
   </div>
 </div>
 
+<input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restore(this)">
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1636,6 +1639,39 @@ function downloadJSON(filename, data) {
   a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// BACKUP / RESTORE
+// ═══════════════════════════════════════════════════
+
+function backup() {
+  const today = new Date().toISOString().slice(0, 10);
+  downloadJSON(`toll-qbank-backup-${today}.json`, { version: 1, exported: today, QB: QB });
+  toast("Backup downloaded ✓", "success");
+}
+
+function restore(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.QB) throw new Error("missing QB key");
+      if (!confirm("This will replace all current questions. Are you sure?")) {
+        input.value = '';
+        return;
+      }
+      localStorage.setItem('toll_qb', JSON.stringify(data.QB));
+      toast("Backup restored ✓", "success");
+      setTimeout(() => location.reload(), 800);
+    } catch(err) {
+      toast("Invalid backup file", "error");
+      input.value = '';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ═══════════════════════════════════════════════════
