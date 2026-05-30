@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.11</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.12</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2224,12 +2224,12 @@ function exportPack() {
 }
 
 function exportAll() {
-  PACKS.forEach(p => {
-    const cat = CATS[p.cat];
-    const json = buildPackJSON(p, cat);
-    downloadJSON(`${p.id}.json`, json);
+  PACKS.forEach((p, i) => {
+    setTimeout(() => {
+      downloadJSON(`${p.id}.json`, buildPackJSON(p, CATS[p.cat]));
+      if (i === PACKS.length - 1) toast("Exported all packs!", "success");
+    }, i * 100);
   });
-  toast("Exported all packs!", "success");
 }
 
 function exportManifest() {
