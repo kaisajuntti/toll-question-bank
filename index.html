@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toll — Question Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0F0E0C;
+  --surface: #1A1916;
+  --surface2: #222018;
+  --surface3: #2A2820;
+  --border: rgba(196, 163, 90, 0.12);
+  --border-hover: rgba(196, 163, 90, 0.3);
+  --gold: #C4A35A;
+  --gold-dim: #8B6F2E;
+  --gold-bright: #E8C87A;
+  --text: #F0EBE0;
+  --text-dim: #7A7060;
+  --text-mid: #B0A898;
+  --red: #E05C4A;
+  --green: #5AAF7A;
+  --purple: #A88FD4;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  height: 56px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-stat {
+  text-align: right;
+}
+
+.header-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.header-stat-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.btn-header {
+  padding: 7px 16px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-mid);
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-header:hover { border-color: var(--border-hover); color: var(--text); }
+
+.btn-header.ai {
+  background: linear-gradient(135deg, #1E1530, #131E30);
+  border-color: rgba(168,143,212,0.3);
+  color: var(--purple);
+}
+
+.btn-header.ai:hover { border-color: rgba(168,143,212,0.6); }
+
+/* ── LAYOUT ── */
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 260px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 12px 0;
+}
+
+.sidebar-cat {
+  padding: 10px 16px 4px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sidebar-pack {
+  padding: 8px 16px 8px 32px;
+  font-size: 13px;
+  color: var(--text-mid);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  margin-left: 0;
+}
+
+.sidebar-pack:hover { color: var(--text); background: var(--surface); }
+
+.sidebar-pack.active {
+  color: var(--gold);
+  border-left-color: var(--gold);
+  background: rgba(196,163,90,0.06);
+}
+
+.pack-q-count {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-dim);
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sidebar-pack.active .pack-q-count { color: var(--gold-dim); background: rgba(196,163,90,0.1); }
+
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pack-header {
+  padding: 20px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.pack-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pack-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--text);
+}
+
+.pack-badges { display: flex; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+
+.badge {
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.badge.gold { border-color: var(--gold-dim); color: var(--gold); }
+.badge.green { border-color: rgba(90,175,122,0.3); color: var(--green); }
+.badge.algo { border-color: rgba(90,143,175,0.3); color: #5A8FAF; }
+
+.pack-actions { display: flex; gap: 8px; }
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.btn-primary { background: var(--gold); color: #0F0E0C; }
+.btn-primary:hover { background: var(--gold-bright); }
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text-mid);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-hover); color: var(--text); }
+
+.btn-ai {
+  background: linear-gradient(135deg, #1E1530, #131E30);
+  color: var(--purple);
+  border: 1px solid rgba(168,143,212,0.3);
+}
+.btn-ai:hover { border-color: rgba(168,143,212,0.6); }
+
+.btn-algo {
+  background: linear-gradient(135deg, #0F1E2A, #0F2A1E);
+  color: #5A8FAF;
+  border: 1px solid rgba(90,143,175,0.3);
+}
+.btn-algo:hover { border-color: rgba(90,143,175,0.6); }
+
+/* ── LEVEL TABS ── */
+.level-tabs {
+  display: flex;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.level-tab {
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-tab:hover { color: var(--text-mid); }
+.level-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.tab-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  background: var(--surface2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.level-tab.active .tab-count { background: rgba(196,163,90,0.15); color: var(--gold-dim); }
+
+/* ── QUESTIONS ── */
+.questions-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 28px;
+}
+
+.q-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 360px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px 8px 30px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.search-input:focus { outline: none; border-color: var(--border-hover); }
+.search-input::placeholder { color: var(--text-dim); }
+
+.q-count-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+
+.q-count-label.warn { color: var(--red); }
+.q-count-label.ok { color: var(--green); }
+
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px 16px;
+  margin-bottom: 7px;
+  transition: all 0.15s;
+}
+
+.question-card:hover {
+  border-color: var(--border-hover);
+  background: var(--surface2);
+}
+
+.q-text {
+  font-size: 13.5px;
+  color: var(--text);
+  margin-bottom: 9px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.q-answers { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+.q-answer {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  border: 1px solid var(--border);
+}
+
+.q-answer.correct {
+  background: rgba(90,175,122,0.12);
+  color: var(--green);
+  border-color: rgba(90,175,122,0.25);
+}
+
+.q-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.q-id { font-size: 10px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+.q-actions { display: flex; gap: 5px; margin-left: auto; opacity: 0; transition: opacity 0.15s; }
+.question-card:hover .q-actions { opacity: 1; }
+
+.q-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+
+.q-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.q-btn.del:hover { border-color: rgba(224,92,74,0.4); color: var(--red); }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-title { font-size: 15px; color: var(--text-mid); margin-bottom: 5px; }
+.empty-sub { font-size: 12px; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap {
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s;
+}
+
+/* ── AI / GENERATE PANEL ── */
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.panel-overlay.open { opacity: 1; pointer-events: all; }
+
+.gen-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 440px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 201;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.gen-panel.open { transform: translateX(0); }
+
+.gen-panel-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.gen-panel-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: var(--gold);
+}
+
+.gen-panel-title span {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.close-btn:hover { color: var(--text); background: var(--surface2); }
+
+.gen-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* API KEY SECTION */
+.api-key-section {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px 16px;
+}
+
+.api-key-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.api-key-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.3px;
+}
+
+.api-key-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.api-key-status.set { background: rgba(90,175,122,0.15); color: var(--green); }
+.api-key-status.missing { background: rgba(224,92,74,0.15); color: var(--red); }
+
+.api-key-input-wrap { position: relative; }
+
+.api-key-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 36px 9px 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  transition: border-color 0.15s;
+}
+
+.api-key-input:focus { outline: none; border-color: var(--border-hover); }
+.api-key-input::placeholder { color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 12px; }
+
+.api-key-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px;
+}
+
+.api-key-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.api-key-hint a { color: var(--gold); text-decoration: none; }
+.api-key-hint a:hover { text-decoration: underline; }
+
+/* FIELD */
+.field label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.field select, .field textarea, .field input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s;
+  appearance: none;
+}
+
+.field select:focus, .field textarea:focus, .field input:focus {
+  outline: none;
+  border-color: var(--border-hover);
+}
+
+.field select option { background: #1A1916; }
+.field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+
+.count-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.count-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.count-btn:hover { border-color: var(--border-hover); }
+
+.count-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  color: var(--gold);
+  min-width: 36px;
+  text-align: center;
+}
+
+/* ALGO SECTION */
+.algo-section {
+  background: linear-gradient(135deg, rgba(15,30,42,0.8), rgba(15,42,30,0.8));
+  border: 1px solid rgba(90,143,175,0.25);
+  border-radius: 9px;
+  padding: 14px 16px;
+}
+
+.algo-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5A8FAF;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.algo-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.algo-params {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.algo-param {
+  flex: 1;
+}
+
+.algo-param label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #5A8FAF;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.algo-param input {
+  width: 100%;
+  background: rgba(90,143,175,0.08);
+  border: 1px solid rgba(90,143,175,0.2);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+  text-align: center;
+}
+
+.algo-param input:focus { outline: none; border-color: rgba(90,143,175,0.5); }
+
+.btn-algo-gen {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #0F1E2A, #0F2A1E);
+  border: 1px solid rgba(90,143,175,0.3);
+  border-radius: 8px;
+  color: #5A8FAF;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-algo-gen:hover { border-color: rgba(90,143,175,0.6); background: linear-gradient(135deg, #0F2030, #0F3020); }
+
+/* GENERATE BTN */
+.btn-generate {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #2A1F42, #1F2A42);
+  border: 1px solid rgba(168,143,212,0.3);
+  border-radius: 9px;
+  color: var(--purple);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-generate:hover { border-color: rgba(168,143,212,0.6); }
+.btn-generate:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* PREVIEW */
+.preview-wrap {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.preview-header {
+  padding: 9px 14px;
+  background: var(--surface2);
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preview-header .ok { color: var(--green); }
+
+.preview-q {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.preview-q-text { font-size: 13px; color: var(--text); margin-bottom: 7px; line-height: 1.4; white-space: pre-line; }
+
+.preview-answers { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.preview-answer {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+
+.preview-answer.correct { background: rgba(90,175,122,0.12); color: var(--green); }
+
+.btn-add-all {
+  width: 100%;
+  padding: 10px;
+  background: rgba(90,175,122,0.1);
+  border: 1px solid rgba(90,175,122,0.25);
+  border-radius: 7px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+  margin-top: 8px;
+}
+
+.btn-add-all:hover { background: rgba(90,175,122,0.2); border-color: rgba(90,175,122,0.4); }
+
+/* NOTIFICATION */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  border: 1px solid var(--border-hover);
+  border-radius: 9px;
+  padding: 11px 20px;
+  font-size: 13px;
+  color: var(--text);
+  z-index: 300;
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(90,175,122,0.4); color: var(--green); }
+.toast.error { border-color: rgba(224,92,74,0.4); color: var(--red); }
+
+/* SPINNER */
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(168,143,212,0.3);
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sidebar { width: 200px; }
+  .gen-panel { width: 100%; max-width: 440px; }
+}
+
+@media (max-width: 600px) {
+  .sidebar { display: none; }
+  .gen-panel { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-name">TOLL</div>
+    <div class="logo-sub">Question Bank</div>
+  </div>
+  <div class="header-right">
+    <div class="header-stat">
+      <div class="header-stat-num" id="totalQ">0</div>
+      <div class="header-stat-label">Questions</div>
+    </div>
+    <div class="header-stat">
+      <div class="header-stat-num" id="totalP">0</div>
+      <div class="header-stat-label">Packs</div>
+    </div>
+    <button class="btn-header ai" onclick="openPanel()">✦ Generate</button>
+    <button class="btn-header" onclick="exportAll()">Export All JSON</button>
+  </div>
+</div>
+
+<div class="workspace">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main">
+    <div class="empty-state" style="margin: auto;">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">Select a pack from the sidebar</div>
+      <div class="empty-sub">or click ✦ Generate to add questions</div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+
+<!-- Generate Panel -->
+<div class="gen-panel" id="genPanel">
+  <div class="gen-panel-header">
+    <div class="gen-panel-title">
+      ✦ Generate Questions
+      <span>AI-powered · Algorithmic · Powered by Claude</span>
+    </div>
+    <button class="close-btn" onclick="closePanel()">×</button>
+  </div>
+  <div class="gen-panel-body">
+
+    <!-- API KEY -->
+    <div class="api-key-section">
+      <div class="api-key-header">
+        <div class="api-key-title">🔑 Anthropic API Key</div>
+        <div class="api-key-status missing" id="keyStatus">Not set</div>
+      </div>
+      <div class="api-key-input-wrap">
+        <input type="password" class="api-key-input" id="apiKeyInput"
+          placeholder="Paste your sk-ant-... key here"
+          oninput="handleKeyInput(this.value)">
+        <button class="api-key-toggle" onclick="toggleKeyVis()" title="Show/hide">👁</button>
+      </div>
+      <div class="api-key-hint">
+        Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys → Create Key.<br>
+        Saved only in this browser. Never sent anywhere except Anthropic.
+      </div>
+    </div>
+
+    <!-- PACK + LEVEL -->
+    <div class="field">
+      <label>Pack</label>
+      <select id="gPack" onchange="onPackChange()"></select>
+    </div>
+    <div class="field">
+      <label>Level</label>
+      <select id="gLevel"></select>
+    </div>
+
+    <!-- ALGORITHMIC SECTION (shown for algo packs) -->
+    <div class="algo-section" id="algoSection" style="display:none">
+      <div class="algo-title">🔢 Algorithmic Generation</div>
+      <div class="algo-desc">This pack generates questions mathematically — no AI needed. All possible combinations are created instantly.</div>
+      <div class="algo-params">
+        <div class="algo-param">
+          <label>Min table</label>
+          <input type="number" id="algoMin" value="1" min="1" max="12">
+        </div>
+        <div class="algo-param">
+          <label>Max table</label>
+          <input type="number" id="algoMax" value="5" min="1" max="12">
+        </div>
+        <div class="algo-param">
+          <label>Max factor</label>
+          <input type="number" id="algoFactor" value="12" min="1" max="20">
+        </div>
+      </div>
+      <button class="btn-algo-gen" onclick="generateAlgorithmic()">🔢 Generate All Combinations</button>
+    </div>
+
+    <!-- AI SECTION -->
+    <div id="aiSection">
+      <div class="field">
+        <label>Number of questions</label>
+        <div class="count-row">
+          <button class="count-btn" onclick="adj(-5)">−</button>
+          <div class="count-val" id="countVal">10</div>
+          <button class="count-btn" onclick="adj(+5)">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Additional instructions (optional)</label>
+        <textarea id="gInstructions" placeholder="e.g. Focus on European capitals, avoid very obscure answers, questions in Swedish..."></textarea>
+      </div>
+      <button class="btn-generate" id="genBtn" onclick="generateAI()">
+        <span id="genBtnText">✦ Generate with AI</span>
+      </button>
+    </div>
+
+    <div id="previewArea"></div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// PACK DATA STRUCTURE
+// ═══════════════════════════════════════════════════
+
+const CATS = {
+  school: { label: "School", icon: "📚" },
+  languages: { label: "Languages", icon: "🌐" },
+  popular: { label: "Popular", icon: "🌍" },
+  iq: { label: "IQ", icon: "🧠" },
+  specials: { label: "Specials", icon: "⭐" }
+};
+
+const PACKS = [
+  // ── SCHOOL / MATHS ──
+  { id: "times-tables",       cat: "school", name: "Maths: Times Tables",          algo: "times-tables", levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3","Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3"] },
+  { id: "addition-sub",       cat: "school", name: "Maths: Addition & Subtraction", algo: "addition",     levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3"] },
+  { id: "division-multi",     cat: "school", name: "Maths: Division & Multiplication", levels: ["Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3"] },
+  { id: "percentages",        cat: "school", name: "Maths: Percentages & Ratio",    levels: ["Grade 7–9 · Y1","Grade 7–9 · Y2","Grade 7–9 · Y3"] },
+  { id: "mental-arithmetic",  cat: "school", name: "Maths: Mental Arithmetic",      levels: ["Grade 7–9 · Y1","Grade 7–9 · Y2","HS+"] },
+  // ── SCHOOL / SUBJECTS ──
+  { id: "english-school",     cat: "school", name: "English",                       levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3","Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3","Grade 7–9 · Y1","Grade 7–9 · Y2","Grade 7–9 · Y3"] },
+  { id: "swedish-school",     cat: "school", name: "Swedish",                       levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3","Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3"] },
+  { id: "science",            cat: "school", name: "Science",                       levels: ["Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3","Grade 7–9 · Y1","Grade 7–9 · Y2","Grade 7–9 · Y3"] },
+  { id: "history-school",     cat: "school", name: "History",                       levels: ["Grade 4–6 · Y1","Grade 7–9 · Y1","Grade 7–9 · Y2","HS+"] },
+  { id: "economics",          cat: "school", name: "Economics",                     levels: ["HS+ · Y1","HS+ · Y2","HS+ · Y3"] },
+  // ── LANGUAGES ──
+  { id: "lang-english",   cat: "languages", name: "English",  levels: ["Easy","Medium","Hard"] },
+  { id: "lang-spanish",   cat: "languages", name: "Spanish",  levels: ["Easy","Medium","Hard"] },
+  { id: "lang-french",    cat: "languages", name: "French",   levels: ["Easy","Medium","Hard"] },
+  { id: "lang-german",    cat: "languages", name: "German",   levels: ["Easy","Medium","Hard"] },
+  // ── POPULAR ──
+  { id: "capital-cities",   cat: "popular", name: "Capital Cities",   levels: ["Easy","Medium","Hard"] },
+  { id: "world-flags",      cat: "popular", name: "World Flags",      levels: ["Easy","Medium","Hard"] },
+  { id: "football-facts",   cat: "popular", name: "Football Facts",   levels: ["Easy","Medium","Hard"] },
+  { id: "general-knowledge",cat: "popular", name: "General Knowledge",levels: ["Easy","Medium","Hard"] },
+  { id: "famous-quotes",    cat: "popular", name: "Famous Quotes",    levels: ["Easy","Medium","Hard"] },
+  { id: "space-astronomy",  cat: "popular", name: "Space & Astronomy",levels: ["Easy","Medium","Hard"] },
+  // ── IQ ──
+  { id: "number-sequences", cat: "iq", name: "Number Sequences", levels: ["Easy","Medium","Hard"] },
+  { id: "analogies",        cat: "iq", name: "Analogies",        levels: ["Easy","Medium","Hard"] },
+  { id: "odd-one-out",      cat: "iq", name: "Odd One Out",      levels: ["Easy","Medium","Hard"] },
+  { id: "logic-puzzles",    cat: "iq", name: "Logic Puzzles",    levels: ["Easy","Medium","Hard"] },
+  // ── SPECIALS ──
+  { id: "idiot-question",   cat: "specials", name: "The Idiot Question", special: "binary",  levels: ["Pool"] },
+  { id: "bluff",            cat: "specials", name: "Bluff",              special: "bluff",   levels: ["Easy","Medium","Hard"] },
+];
+
+// Question bank: packId → levelIndex → [questions]
+let QB = {};
+
+// Init QB structure
+PACKS.forEach(p => {
+  QB[p.id] = p.levels.map(() => []);
+});
+
+// Seed some sample questions
+QB["capital-cities"][0] = [
+  { id:"cc001", q:"What is the capital of France?",    answers:["London","Paris","Berlin","Madrid"],     correct:1 },
+  { id:"cc002", q:"What is the capital of Japan?",     answers:["Beijing","Seoul","Tokyo","Bangkok"],    correct:2 },
+  { id:"cc003", q:"What is the capital of Australia?", answers:["Sydney","Melbourne","Brisbane","Canberra"], correct:3 },
+  { id:"cc004", q:"What is the capital of Brazil?",    answers:["São Paulo","Rio de Janeiro","Brasília","Salvador"], correct:2 },
+  { id:"cc005", q:"What is the capital of Canada?",    answers:["Toronto","Vancouver","Ottawa","Montreal"], correct:2 },
+];
+QB["football-facts"][0] = [
+  { id:"ff001", q:"How many players are on a football team?",       answers:["9","10","11","12"],        correct:2 },
+  { id:"ff002", q:"Which country has won the most World Cups?",     answers:["Germany","Argentina","Brazil","Italy"], correct:2 },
+  { id:"ff003", q:"How long is a standard football match?",         answers:["80 min","90 min","100 min","120 min"], correct:1 },
+];
+QB["idiot-question"][0] = [
+  { id:"iq001", q:"Is 'Nemas problemas' correct Spanish?",                        answers:["Yes","No"],           correct:1 },
+  { id:"iq002", q:"Does the Christian calendar count from Jesus's birth or death?", answers:["Birth","Death"],    correct:0 },
+  { id:"iq003", q:"Is it spelled 'Acoustic' or 'Accoustic'?",                     answers:["Acoustic","Accoustic"], correct:0 },
+  { id:"iq004", q:"Did Vikings wear horned helmets in battle?",                   answers:["Yes","No"],           correct:1 },
+  { id:"iq005", q:"Is a tomato botanically a fruit or a vegetable?",              answers:["Fruit","Vegetable"],  correct:0 },
+];
+QB["number-sequences"][0] = [
+  { id:"ns001", q:"What comes next?\n2, 4, 8, 16, ?",   answers:["24","28","32","36"], correct:2 },
+  { id:"ns002", q:"What comes next?\n1, 3, 6, 10, ?",   answers:["13","14","15","16"], correct:2 },
+  { id:"ns003", q:"What comes next?\n5, 10, 20, 40, ?", answers:["60","70","80","90"], correct:2 },
+];
+QB["bluff"][0] = [
+  { id:"bl001", q:"About ABBA — spot the lie:\nA) ABBA formed in Stockholm in 1972\nB) ABBA stands for the first letters of each member's name\nC) ABBA won Eurovision with 'Waterloo' in 1973", answers:["A is false","B is false","C is false"], correct:2 },
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+
+let state = {
+  packId: null,
+  levelIdx: 0,
+  search: "",
+  genCount: 10,
+  panelOpen: false
+};
+
+// ═══════════════════════════════════════════════════
+// PERSIST
+// ═══════════════════════════════════════════════════
+
+function save() {
+  try { localStorage.setItem('toll_qb', JSON.stringify(QB)); } catch(e) {}
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem('toll_qb');
+    if (d) {
+      const parsed = JSON.parse(d);
+      Object.keys(parsed).forEach(k => { if (QB[k]) QB[k] = parsed[k]; });
+    }
+    const key = localStorage.getItem('toll_api_key');
+    if (key) {
+      document.getElementById('apiKeyInput').value = key;
+      updateKeyStatus(key);
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER SIDEBAR
+// ═══════════════════════════════════════════════════
+
+function renderSidebar() {
+  let html = '';
+  let totalQ = 0, totalP = 0;
+
+  Object.keys(CATS).forEach(catId => {
+    const cat = CATS[catId];
+    const catPacks = PACKS.filter(p => p.cat === catId);
+    if (!catPacks.length) return;
+
+    html += `<div class="sidebar-cat">${cat.icon} ${cat.label}</div>`;
+
+    catPacks.forEach(p => {
+      const count = (QB[p.id] || []).reduce((s,l) => s + l.length, 0);
+      totalQ += count;
+      totalP++;
+      const active = state.packId === p.id;
+      html += `<div class="sidebar-pack ${active?'active':''}" onclick="selectPack('${p.id}')">
+        <span>${p.name}</span>
+        <span class="pack-q-count">${count}</span>
+      </div>`;
+    });
+
+    html += `<div class="sidebar-divider"></div>`;
+  });
+
+  document.getElementById('sidebar').innerHTML = html;
+  document.getElementById('totalQ').textContent = totalQ;
+  document.getElementById('totalP').textContent = totalP;
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER MAIN
+// ═══════════════════════════════════════════════════
+
+function renderMain() {
+  const main = document.getElementById('main');
+  if (!state.packId) return;
+
+  const pack = PACKS.find(p => p.id === state.packId);
+  const cat = CATS[pack.cat];
+  const levels = QB[pack.id];
+  const level = levels[state.levelIdx];
+  const totalQ = levels.reduce((s,l) => s + l.length, 0);
+  const TARGET = 100;
+
+  const filtered = level.filter(q =>
+    !state.search || q.q.toLowerCase().includes(state.search.toLowerCase())
+  );
+
+  const pct = Math.min(100, Math.round((level.length / TARGET) * 100));
+  const barColor = level.length >= TARGET ? 'var(--green)' : level.length >= 50 ? 'var(--gold)' : 'var(--red)';
+  const countClass = level.length >= TARGET ? 'ok' : level.length >= 50 ? '' : 'warn';
+
+  let html = `
+    <div class="pack-header">
+      <div class="pack-header-top">
+        <div>
+          <div class="pack-title">${pack.name}</div>
+          <div class="pack-badges">
+            <span class="badge gold">${cat.label}</span>
+            <span class="badge">${totalQ} total questions</span>
+            <span class="badge">${pack.levels.length} levels</span>
+            ${pack.algo ? '<span class="badge algo">🔢 Algorithmic</span>' : ''}
+            ${pack.special ? `<span class="badge" style="border-color:rgba(196,163,90,0.3);color:var(--gold)">⭐ ${pack.special}</span>` : ''}
+          </div>
+        </div>
+        <div class="pack-actions">
+          ${pack.algo ? `<button class="btn btn-algo" onclick="openPanelForPack()">🔢 Generate</button>` : `<button class="btn btn-ai" onclick="openPanelForPack()">✦ AI Generate</button>`}
+          <button class="btn btn-secondary" onclick="exportPack()">Export JSON</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="progress-bar-wrap" style="flex:1">
+          <div class="progress-bar" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+        <span class="q-count-label ${countClass}">${level.length}/${TARGET} questions</span>
+      </div>
+    </div>
+
+    <div class="level-tabs">`;
+
+  pack.levels.forEach((lName, i) => {
+    const lCount = levels[i].length;
+    html += `<div class="level-tab ${i===state.levelIdx?'active':''}" onclick="selectLevel(${i})">
+      ${lName} <span class="tab-count">${lCount}</span>
+    </div>`;
+  });
+
+  html += `</div>
+    <div class="questions-wrap">
+      <div class="q-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" placeholder="Search questions..."
+            value="${state.search}"
+            oninput="state.search=this.value;renderMain()">
+        </div>
+        <span class="q-count-label">${filtered.length} shown</span>
+      </div>`;
+
+  if (filtered.length === 0) {
+    html += `<div class="empty-state">
+      <div class="empty-icon">${pack.algo ? '🔢' : '✦'}</div>
+      <div class="empty-title">No questions yet</div>
+      <div class="empty-sub">${pack.algo ? 'Click "Generate" to create all combinations algorithmically' : 'Click "AI Generate" to generate questions'}</div>
+    </div>`;
+  } else {
+    filtered.forEach(q => {
+      html += `<div class="question-card">
+        <div class="q-text">${q.q}</div>
+        <div class="q-answers">`;
+      q.answers.forEach((a,i) => {
+        html += `<span class="q-answer ${i===q.correct?'correct':''}">${a}</span>`;
+      });
+      html += `</div>
+        <div class="q-footer">
+          <span class="q-id">#${q.id}</span>
+          <div class="q-actions">
+            <button class="q-btn del" onclick="delQ('${q.id}')">Delete</button>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+
+  html += `</div>`;
+  main.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════════════
+
+function selectPack(id) {
+  state.packId = id;
+  state.levelIdx = 0;
+  state.search = "";
+  renderSidebar();
+  renderMain();
+  updateGenPanel();
+}
+
+function selectLevel(i) {
+  state.levelIdx = i;
+  state.search = "";
+  renderMain();
+}
+
+function delQ(qid) {
+  if (!state.packId) return;
+  QB[state.packId][state.levelIdx] = QB[state.packId][state.levelIdx].filter(q => q.id !== qid);
+  save();
+  renderSidebar();
+  renderMain();
+  toast("Deleted", "");
+}
+
+// ═══════════════════════════════════════════════════
+// GENERATE PANEL
+// ═══════════════════════════════════════════════════
+
+function openPanel() {
+  state.panelOpen = true;
+  document.getElementById('genPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+  updateGenPanel();
+}
+
+function openPanelForPack() {
+  openPanel();
+  // Set pack in panel
+  const sel = document.getElementById('gPack');
+  if (sel) { sel.value = state.packId; onPackChange(); }
+}
+
+function closePanel() {
+  state.panelOpen = false;
+  document.getElementById('genPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function updateGenPanel() {
+  const sel = document.getElementById('gPack');
+  if (!sel) return;
+  let html = '';
+  Object.keys(CATS).forEach(catId => {
+    const catPacks = PACKS.filter(p => p.cat === catId);
+    if (!catPacks.length) return;
+    html += `<optgroup label="${CATS[catId].icon} ${CATS[catId].label}">`;
+    catPacks.forEach(p => { html += `<option value="${p.id}" ${p.id===state.packId?'selected':''}>${p.name}</option>`; });
+    html += `</optgroup>`;
+  });
+  sel.innerHTML = html;
+  onPackChange();
+}
+
+function onPackChange() {
+  const packId = document.getElementById('gPack').value;
+  const pack = PACKS.find(p => p.id === packId);
+  if (!pack) return;
+
+  // Level select
+  const lSel = document.getElementById('gLevel');
+  lSel.innerHTML = pack.levels.map((l,i) => `<option value="${i}">${l}</option>`).join('');
+
+  // Show/hide algo vs AI
+  const isAlgo = !!pack.algo;
+  document.getElementById('algoSection').style.display = isAlgo ? 'block' : 'none';
+  document.getElementById('aiSection').style.display = isAlgo ? 'none' : 'block';
+
+  // Set algo defaults
+  if (isAlgo && pack.algo === 'times-tables') {
+    const levelIdx = parseInt(lSel.value) || 0;
+    const algoDefaults = [
+      [1,5,12],[1,5,12],[1,8,12],
+      [1,8,12],[1,10,12],[1,12,12]
+    ];
+    const d = algoDefaults[Math.min(levelIdx, algoDefaults.length-1)];
+    document.getElementById('algoMin').value = d[0];
+    document.getElementById('algoMax').value = d[1];
+    document.getElementById('algoFactor').value = d[2];
+  }
+
+  document.getElementById('previewArea').innerHTML = '';
+}
+
+// ═══════════════════════════════════════════════════
+// ALGORITHMIC GENERATION
+// ═══════════════════════════════════════════════════
+
+function generateAlgorithmic() {
+  const packId = document.getElementById('gPack').value;
+  const levelIdx = parseInt(document.getElementById('gLevel').value);
+  const pack = PACKS.find(p => p.id === packId);
+  const min = parseInt(document.getElementById('algoMin').value);
+  const max = parseInt(document.getElementById('algoMax').value);
+  const factor = parseInt(document.getElementById('algoFactor').value);
+
+  let questions = [];
+
+  if (pack.algo === 'times-tables') {
+    for (let a = min; a <= max; a++) {
+      for (let b = 1; b <= factor; b++) {
+        const correct = a * b;
+        const wrongs = generateWrongAnswers(correct, 3, 'multiply');
+        const answers = shuffle([correct, ...wrongs].map(String));
+        const ci = answers.indexOf(String(correct));
+        questions.push({
+          id: `tt-${a}-${b}`,
+          q: `What is ${a} × ${b}?`,
+          answers,
+          correct: ci
+        });
+      }
+    }
+  } else if (pack.algo === 'addition') {
+    const ranges = [[1,10],[1,20],[1,50]];
+    const r = ranges[Math.min(levelIdx, ranges.length-1)];
+    for (let a = r[0]; a <= r[1]; a++) {
+      for (let b = r[0]; b <= r[1]; b++) {
+        const correct = a + b;
+        const wrongs = generateWrongAnswers(correct, 3, 'add');
+        const answers = shuffle([correct, ...wrongs].map(String));
+        const ci = answers.indexOf(String(correct));
+        questions.push({
+          id: `add-${a}-${b}`,
+          q: `What is ${a} + ${b}?`,
+          answers,
+          correct: ci
+        });
+      }
+    }
+  }
+
+  QB[packId][levelIdx] = questions;
+  save();
+
+  // Switch to that pack/level
+  state.packId = packId;
+  state.levelIdx = levelIdx;
+  renderSidebar();
+  renderMain();
+  closePanel();
+  toast(`Generated ${questions.length} questions ✓`, "success");
+}
+
+function generateWrongAnswers(correct, count, type) {
+  const wrongs = new Set();
+  const offsets = type === 'multiply'
+    ? [-2,-1,1,2,-3,3,4,-4,5,-5,correct-1,correct+1]
+    : [-2,-1,1,2,-3,3];
+
+  for (const o of shuffle(offsets)) {
+    const w = correct + o;
+    if (w > 0 && w !== correct) wrongs.add(w);
+    if (wrongs.size >= count) break;
+  }
+
+  while (wrongs.size < count) {
+    const w = correct + (Math.floor(Math.random() * 10) - 5);
+    if (w > 0 && w !== correct) wrongs.add(w);
+  }
+
+  return [...wrongs].slice(0, count);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ═══════════════════════════════════════════════════
+// AI GENERATION
+// ═══════════════════════════════════════════════════
+
+function adj(d) {
+  state.genCount = Math.max(5, Math.min(50, state.genCount + d));
+  document.getElementById('countVal').textContent = state.genCount;
+}
+
+async function generateAI() {
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  const packId = document.getElementById('gPack').value;
+  const levelIdx = parseInt(document.getElementById('gLevel').value);
+  const pack = PACKS.find(p => p.id === packId);
+  const level = pack.levels[levelIdx];
+  const instructions = document.getElementById('gInstructions').value;
+  const count = state.genCount;
+
+  const btn = document.getElementById('genBtn');
+  const btnText = document.getElementById('genBtnText');
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Generating...';
+  document.getElementById('previewArea').innerHTML = '';
+
+  const isBluff = pack.special === 'bluff';
+  const isBinary = pack.special === 'binary';
+
+  let prompt = '';
+
+  if (isBluff) {
+    prompt = `Generate ${count} Bluff quiz questions for an educational app called Toll.
+Pack: ${pack.name}, Level: ${level}
+Each question shows 3 statements about a topic. 2 are true, 1 is false. The player spots the lie.
+${instructions ? `Instructions: ${instructions}` : ''}
+Mix topics widely. Make the false statement plausible, not obvious.
+Return ONLY a valid JSON array:
+[{"q":"About [topic] — spot the lie:\\nA) [stmt]\\nB) [stmt]\\nC) [stmt]","answers":["A is false","B is false","C is false"],"correct":0}]
+correct is 0, 1, or 2.`;
+  } else if (isBinary) {
+    prompt = `Generate ${count} "Idiot Question" quiz questions in English for an educational app.
+These sound easy but make you second-guess yourself. Two answers only: Yes/No or A/B.
+${instructions ? `Instructions: ${instructions}` : ''}
+Return ONLY a valid JSON array:
+[{"q":"question","answers":["Yes","No"],"correct":0}]`;
+  } else {
+    prompt = `Generate ${count} quiz questions for the Toll educational app.
+Pack: ${pack.name}
+Category: ${CATS[pack.cat].label}
+Level: ${level}
+${instructions ? `Instructions: ${instructions}` : ''}
+Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
+Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
+Return ONLY a valid JSON array, no markdown:
+[{"q":"question","answers":["a","b","c","d"],"correct":0}]
+Vary which index (0-3) is correct.`;
+  }
+
+  try {
+    const headers = {
+      "Content-Type": "application/json",
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    };
+    if (apiKey) headers["x-api-key"] = apiKey;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content.map(i => i.text || "").join("");
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error("No JSON array in response");
+    const qs = JSON.parse(match[0]);
+
+    const prefix = packId.replace(/-/g,'').substring(0,4).toUpperCase();
+    const existing = QB[packId][levelIdx].length;
+    const newQs = qs.map((q,i) => ({
+      id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
+      q: q.q,
+      answers: q.answers,
+      correct: q.correct
+    }));
+
+    // Show preview
+    let html = `<div class="preview-wrap">
+      <div class="preview-header">
+        <span>${newQs.length} questions ready</span>
+        <span class="ok">✓</span>
+      </div>`;
+
+    newQs.slice(0,4).forEach(q => {
+      html += `<div class="preview-q">
+        <div class="preview-q-text">${q.q}</div>
+        <div class="preview-answers">`;
+      q.answers.forEach((a,i) => {
+        html += `<span class="preview-answer ${i===q.correct?'correct':''}">${a}</span>`;
+      });
+      html += `</div></div>`;
+    });
+
+    if (newQs.length > 4) {
+      html += `<div class="preview-q" style="color:var(--text-dim);font-size:12px;text-align:center">+ ${newQs.length-4} more</div>`;
+    }
+
+    html += `</div>
+      <button class="btn-add-all" onclick='addQuestions(${JSON.stringify(newQs)}, "${packId}", ${levelIdx})'>
+        ✓ Add all ${newQs.length} to "${level}"
+      </button>`;
+
+    document.getElementById('previewArea').innerHTML = html;
+
+  } catch(err) {
+    toast("Error: " + err.message, "error");
+  }
+
+  btn.disabled = false;
+  btnText.textContent = '✦ Generate with AI';
+}
+
+function addQuestions(qs, packId, levelIdx) {
+  QB[packId][levelIdx].push(...qs);
+  save();
+  state.packId = packId;
+  state.levelIdx = levelIdx;
+  renderSidebar();
+  renderMain();
+  document.getElementById('previewArea').innerHTML = '';
+  toast(`Added ${qs.length} questions ✓`, "success");
+}
+
+// ═══════════════════════════════════════════════════
+// API KEY
+// ═══════════════════════════════════════════════════
+
+function handleKeyInput(val) {
+  updateKeyStatus(val);
+  try { if (val) localStorage.setItem('toll_api_key', val); } catch(e) {}
+}
+
+function updateKeyStatus(val) {
+  const el = document.getElementById('keyStatus');
+  if (val && val.startsWith('sk-')) {
+    el.textContent = '✓ Set';
+    el.className = 'api-key-status set';
+  } else {
+    el.textContent = 'Not set';
+    el.className = 'api-key-status missing';
+  }
+}
+
+function toggleKeyVis() {
+  const inp = document.getElementById('apiKeyInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ═══════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════
+
+function exportPack() {
+  if (!state.packId) return;
+  const pack = PACKS.find(p => p.id === state.packId);
+  const cat = CATS[pack.cat];
+  const json = buildPackJSON(pack, cat);
+  downloadJSON(`${state.packId}.json`, json);
+  toast(`Exported ${state.packId}.json`, "success");
+}
+
+function exportAll() {
+  PACKS.forEach(p => {
+    const cat = CATS[p.cat];
+    const json = buildPackJSON(p, cat);
+    downloadJSON(`${p.id}.json`, json);
+  });
+  toast("Exported all packs!", "success");
+}
+
+function buildPackJSON(pack, cat) {
+  return {
+    id: pack.id,
+    name: pack.name,
+    category: pack.cat,
+    icon: cat.icon,
+    algorithmic: pack.algo || null,
+    special: pack.special || null,
+    levels: pack.levels.map((lName, i) => ({
+      id: lName.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+      name: lName,
+      defaultQuestions: 2,
+      defaultTime: 30,
+      questions: (QB[pack.id][i] || []).map(q => ({
+        id: q.id,
+        question: q.q,
+        answers: q.answers,
+        correctIndex: q.correct
+      }))
+    }))
+  };
+}
+
+function downloadJSON(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+
+load();
+updateGenPanel();
+renderSidebar();
+selectPack('capital-cities');
+</script>
+</body>
+</html>
