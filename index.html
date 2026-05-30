@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.7</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.8</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1362,8 +1362,11 @@ let state = {
   levelIdx: 0,
   search: "",
   genCount: 10,
-  panelOpen: false
+  panelOpen: false,
+  editingQid: null
 };
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 let levelDefaults = {};
 
@@ -1552,20 +1555,44 @@ function renderMain() {
     </div>`;
   } else {
     filtered.forEach(q => {
-      html += `<div class="question-card">
-        <div class="q-text">${q.q}</div>
-        <div class="q-answers">`;
-      q.answers.forEach((a,i) => {
-        html += `<span class="q-answer ${i===q.correct?'correct':''}">${a}</span>`;
-      });
-      html += `</div>
-        <div class="q-footer">
-          <span class="q-id">#${q.id}</span>
-          <div class="q-actions">
-            <button class="q-btn del" onclick="delQ('${q.id}')">Delete</button>
+      if (state.editingQid === q.id) {
+        const rows = Math.max(3, q.q.split('\n').length + 1);
+        html += `<div class="question-card" style="border-color:var(--border-hover)">
+          <textarea id="eq-text" rows="${rows}" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px">${esc(q.q)}</textarea>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">`;
+        q.answers.forEach((a, ai) => {
+          const isCorrect = ai === q.correct;
+          html += `<label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+            <input type="radio" name="eq-correct" value="${ai}" ${isCorrect?'checked':''} style="accent-color:var(--green);flex-shrink:0">
+            <input type="text" id="eq-ans-${ai}" value="${esc(a)}" style="flex:1;background:var(--surface2);border:1px solid ${isCorrect?'rgba(90,175,122,0.3)':'var(--border)'};border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace">
+          </label>`;
+        });
+        html += `</div>
+          <div class="q-footer">
+            <span class="q-id">#${q.id}</span>
+            <div class="q-actions" style="opacity:1">
+              <button class="q-btn" onclick="cancelEditQ()">Cancel</button>
+              <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveQ('${q.id}')">Save</button>
+            </div>
           </div>
-        </div>
-      </div>`;
+        </div>`;
+      } else {
+        html += `<div class="question-card">
+          <div class="q-text">${q.q}</div>
+          <div class="q-answers">`;
+        q.answers.forEach((a,i) => {
+          html += `<span class="q-answer ${i===q.correct?'correct':''}">${a}</span>`;
+        });
+        html += `</div>
+          <div class="q-footer">
+            <span class="q-id">#${q.id}</span>
+            <div class="q-actions">
+              <button class="q-btn" onclick="editQ('${q.id}')">Edit</button>
+              <button class="q-btn del" onclick="delQ('${q.id}')">Delete</button>
+            </div>
+          </div>
+        </div>`;
+      }
     });
   }
 
@@ -1581,6 +1608,7 @@ function selectPack(id) {
   state.packId = id;
   state.levelIdx = 0;
   state.search = "";
+  state.editingQid = null;
   renderSidebar();
   renderMain();
   updateGenPanel();
@@ -1589,6 +1617,7 @@ function selectPack(id) {
 function selectLevel(i) {
   state.levelIdx = i;
   state.search = "";
+  state.editingQid = null;
   renderMain();
 }
 
@@ -1873,8 +1902,9 @@ Vary which index (0-3) is correct.`;
       html += `<div class="preview-q" style="color:var(--text-dim);font-size:12px;text-align:center">+ ${newQs.length-4} more</div>`;
     }
 
+    window._pendingQs = { qs: newQs, packId, levelIdx };
     html += `</div>
-      <button class="btn-add-all" onclick='addQuestions(${JSON.stringify(newQs)}, "${packId}", ${levelIdx})'>
+      <button class="btn-add-all" onclick="addPendingQs()">
         ✓ Add all ${newQs.length} to "${level}"
       </button>`;
 
@@ -1897,6 +1927,49 @@ function addQuestions(qs, packId, levelIdx) {
   renderMain();
   document.getElementById('previewArea').innerHTML = '';
   toast(`Added ${qs.length} questions ✓`, "success");
+}
+
+function addPendingQs() {
+  if (!window._pendingQs) return;
+  const { qs, packId, levelIdx } = window._pendingQs;
+  window._pendingQs = null;
+  closePanel();
+  addQuestions(qs, packId, levelIdx);
+}
+
+function editQ(qid) {
+  state.editingQid = qid;
+  renderMain();
+}
+
+function cancelEditQ() {
+  state.editingQid = null;
+  renderMain();
+}
+
+function saveQ(qid) {
+  const textEl = document.getElementById('eq-text');
+  if (!textEl) return;
+  const text = textEl.value.trim();
+  if (!text) { toast("Question text can't be empty", "error"); return; }
+
+  const level = QB[state.packId][state.levelIdx];
+  const qi = level.findIndex(q => q.id === qid);
+  if (qi === -1) return;
+
+  const q = level[qi];
+  const answers = q.answers.map((_, i) => {
+    const el = document.getElementById(`eq-ans-${i}`);
+    return el ? el.value.trim() : q.answers[i];
+  });
+  let correct = q.correct;
+  document.querySelectorAll('input[name="eq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+
+  level[qi] = { id: q.id, q: text, answers, correct };
+  save();
+  state.editingQid = null;
+  renderMain();
+  toast("Saved ✓", "success");
 }
 
 // ═══════════════════════════════════════════════════
