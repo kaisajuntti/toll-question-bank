@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.8</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.9</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1363,7 +1363,9 @@ let state = {
   search: "",
   genCount: 10,
   panelOpen: false,
-  editingQid: null
+  editingQid: null,
+  addingQ: false,
+  generatingAll: false
 };
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -1495,7 +1497,12 @@ function renderMain() {
           </div>
         </div>
         <div class="pack-actions">
-          ${pack.algo ? `<button class="btn btn-algo" onclick="openPanelForPack()">🔢 Generate</button>` : `<button class="btn btn-ai" onclick="openPanelForPack()">✦ AI Generate</button>`}
+          ${pack.algo
+            ? `<button class="btn btn-algo" onclick="openPanelForPack()">🔢 Generate</button>`
+            : `<button class="btn btn-ai" onclick="openPanelForPack()">✦ AI Generate</button>
+               <button class="btn btn-ai" id="btnGenAll" onclick="generateAllLevels()"${state.generatingAll ? ' disabled style="opacity:0.6;cursor:not-allowed"' : ''}>
+                 ${state.generatingAll ? '<span class="spinner"></span>' : '✦ All Levels'}
+               </button>`}
           <button class="btn btn-secondary" onclick="exportPack()">Export JSON</button>
           <button class="btn btn-secondary" onclick="exportManifest()">Manifest</button>
         </div>
@@ -1545,13 +1552,37 @@ function renderMain() {
             oninput="state.search=this.value;renderMain()">
         </div>
         <span class="q-count-label">${filtered.length} shown</span>
+        ${!state.addingQ ? `<button class="q-btn" onclick="startAddQ()" style="white-space:nowrap;padding:4px 10px">+ Add Question</button>` : ''}
       </div>`;
 
-  if (filtered.length === 0) {
+  if (state.addingQ) {
+    const ansCount = pack.special === 'binary' ? 2 : pack.special === 'bluff' ? 3 : 4;
+    html += `<div class="question-card" style="border-color:var(--gold-dim)">
+      <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;font-weight:600">New Question</div>
+      <textarea id="nq-text" rows="3" placeholder="Enter question text..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px"></textarea>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">`;
+    for (let i = 0; i < ansCount; i++) {
+      html += `<label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+        <input type="radio" name="nq-correct" value="${i}" ${i===0?'checked':''} style="accent-color:var(--green);flex-shrink:0">
+        <input type="text" id="nq-ans-${i}" placeholder="Answer ${i+1}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace">
+      </label>`;
+    }
+    html += `</div>
+      <div class="q-footer">
+        <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
+        <div class="q-actions" style="opacity:1">
+          <button class="q-btn" onclick="cancelAddQ()">Cancel</button>
+          <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveNewQ()">Save</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (filtered.length === 0 && !state.addingQ) {
     html += `<div class="empty-state">
       <div class="empty-icon">${pack.algo ? '🔢' : '✦'}</div>
       <div class="empty-title">No questions yet</div>
-      <div class="empty-sub">${pack.algo ? 'Click "Generate" to create all combinations algorithmically' : 'Click "AI Generate" to generate questions'}</div>
+      <div class="empty-sub">${pack.algo ? 'Click "Generate" to create all combinations algorithmically' : 'Click "AI Generate" or "+ Add Question" to add questions'}</div>
     </div>`;
   } else {
     filtered.forEach(q => {
@@ -1588,7 +1619,7 @@ function renderMain() {
             <span class="q-id">#${q.id}</span>
             <div class="q-actions">
               <button class="q-btn" onclick="editQ('${q.id}')">Edit</button>
-              <button class="q-btn del" onclick="delQ('${q.id}')">Delete</button>
+              <button class="q-btn del" onclick="delQ('${q.id}')" title="Delete">×</button>
             </div>
           </div>
         </div>`;
@@ -1790,6 +1821,113 @@ function shuffle(arr) {
 }
 
 // ═══════════════════════════════════════════════════
+// GENERATE ALL LEVELS
+// ═══════════════════════════════════════════════════
+
+async function generateAllLevels() {
+  if (!state.packId || state.generatingAll) return;
+  const pack = PACKS.find(p => p.id === state.packId);
+  if (!pack || pack.algo) return;
+
+  const apiKey = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem('toll_api_key') || '';
+  if (!apiKey || !apiKey.startsWith('sk-')) { toast("Set your API key in ✦ Generate first", "error"); return; }
+
+  const emptyLevels = pack.levels.map((name, i) => ({ name, i })).filter(l => QB[pack.id][l.i].length === 0);
+  if (!emptyLevels.length) { toast("All levels already have questions", ""); return; }
+
+  state.generatingAll = true;
+  renderMain();
+
+  for (let j = 0; j < emptyLevels.length; j++) {
+    const { name, i } = emptyLevels[j];
+    const btn = document.getElementById('btnGenAll');
+    if (btn) btn.innerHTML = `<span class="spinner"></span> ${name} (${j+1}/${emptyLevels.length})`;
+    try {
+      await generateAIForLevel(pack, i, apiKey);
+    } catch(e) {
+      toast(`Error on "${name}": ${e.message}`, "error");
+    }
+  }
+
+  state.generatingAll = false;
+  save();
+  renderSidebar();
+  renderMain();
+  toast("Generated all levels ✓", "success");
+}
+
+async function generateAIForLevel(pack, levelIdx, apiKey) {
+  const level = pack.levels[levelIdx];
+  const instructions = pack.generationInstructions || '';
+  const count = state.genCount;
+  const isBluff = pack.special === 'bluff';
+  const isBinary = pack.special === 'binary';
+
+  let prompt = '';
+  if (isBluff) {
+    prompt = `Generate ${count} Bluff quiz questions for an educational app called Toll.
+Pack: ${pack.name}, Level: ${level}
+Each question shows 3 statements about a topic. 2 are true, 1 is false. The player spots the lie.
+${instructions ? `Instructions: ${instructions}` : ''}
+Mix topics widely. Make the false statement plausible, not obvious.
+Return ONLY a valid JSON array:
+[{"q":"About [topic] — spot the lie:\\nA) [stmt]\\nB) [stmt]\\nC) [stmt]","answers":["A is false","B is false","C is false"],"correct":0}]
+correct is 0, 1, or 2.`;
+  } else if (isBinary) {
+    prompt = `Generate ${count} "Idiot Question" quiz questions in English for an educational app.
+These sound easy but make you second-guess yourself. Two answers only: Yes/No or A/B.
+${instructions ? `Instructions: ${instructions}` : ''}
+Return ONLY a valid JSON array:
+[{"q":"question","answers":["Yes","No"],"correct":0}]`;
+  } else {
+    prompt = `Generate ${count} quiz questions for the Toll educational app.
+Pack: ${pack.name}
+Category: ${CATS[pack.cat].label}
+Level: ${level}
+${instructions ? `Instructions: ${instructions}` : ''}
+Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
+Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
+Return ONLY a valid JSON array, no markdown:
+[{"q":"question","answers":["a","b","c","d"],"correct":0}]
+Vary which index (0-3) is correct.`;
+  }
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+      "x-api-key": apiKey
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  const text = data.content.map(c => c.text || "").join("");
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error("No JSON array in response");
+  const qs = JSON.parse(match[0]);
+
+  const prefix = pack.id.replace(/-/g,'').substring(0,4).toUpperCase();
+  const existing = QB[pack.id][levelIdx].length;
+  const newQs = qs.map((q, idx) => ({
+    id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
+    q: q.q,
+    answers: q.answers,
+    correct: q.correct
+  }));
+
+  QB[pack.id][levelIdx].push(...newQs);
+  return newQs.length;
+}
+
+// ═══════════════════════════════════════════════════
 // AI GENERATION
 // ═══════════════════════════════════════════════════
 
@@ -1970,6 +2108,51 @@ function saveQ(qid) {
   state.editingQid = null;
   renderMain();
   toast("Saved ✓", "success");
+}
+
+function startAddQ() {
+  state.addingQ = true;
+  state.editingQid = null;
+  renderMain();
+  setTimeout(() => { const el = document.getElementById('nq-text'); if (el) el.focus(); }, 50);
+}
+
+function cancelAddQ() {
+  state.addingQ = false;
+  renderMain();
+}
+
+function newQid(packId) {
+  const prefix = packId.replace(/-/g,'').substring(0,4).toUpperCase();
+  const total = (QB[packId] || []).reduce((s,l) => s + l.length, 0);
+  return `${prefix}M${String(total + 1).padStart(3,'0')}`;
+}
+
+function saveNewQ() {
+  const textEl = document.getElementById('nq-text');
+  if (!textEl) return;
+  const text = textEl.value.trim();
+  if (!text) { toast("Question text can't be empty", "error"); return; }
+
+  const pack = PACKS.find(p => p.id === state.packId);
+  const ansCount = pack.special === 'binary' ? 2 : pack.special === 'bluff' ? 3 : 4;
+  const answers = [];
+  for (let i = 0; i < ansCount; i++) {
+    const el = document.getElementById(`nq-ans-${i}`);
+    const val = el ? el.value.trim() : '';
+    if (!val) { toast(`Answer ${i+1} can't be empty`, "error"); return; }
+    answers.push(val);
+  }
+
+  let correct = 0;
+  document.querySelectorAll('input[name="nq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+
+  QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), q: text, answers, correct });
+  save();
+  state.addingQ = false;
+  renderSidebar();
+  renderMain();
+  toast("Question added ✓", "success");
 }
 
 // ═══════════════════════════════════════════════════
