@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank</div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.6</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1417,6 +1417,7 @@ function load() {
     const ld = localStorage.getItem('toll_level_defaults');
     if (ld) levelDefaults = JSON.parse(ld);
   } catch(e) {}
+  loadPackInstructions();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1830,7 +1831,7 @@ Vary which index (0-3) is correct.`;
       method: "POST",
       headers,
       body: JSON.stringify({
-        model: "claude-sonnet-4-5-20251120",
+        model: "claude-sonnet-4-6",
         max_tokens: 4000,
         messages: [{ role: "user", content: prompt }]
       })
@@ -2144,6 +2145,21 @@ function deletePack(id) {
   toast(`Deleted "${pack.name}"`, "");
 }
 
+let packInstructionOverrides = {};
+
+function loadPackInstructions() {
+  try {
+    const d = localStorage.getItem('toll_pack_instructions');
+    if (d) {
+      packInstructionOverrides = JSON.parse(d);
+      Object.keys(packInstructionOverrides).forEach(id => {
+        const p = PACKS.find(p => p.id === id);
+        if (p) p.generationInstructions = packInstructionOverrides[id];
+      });
+    }
+  } catch(e) {}
+}
+
 function onInstructionsEdit() {
   const packId = document.getElementById('gPack').value;
   const pack = PACKS.find(p => p.id === packId);
@@ -2157,7 +2173,10 @@ function savePackInstructions() {
   const packId = document.getElementById('gPack').value;
   const pack = PACKS.find(p => p.id === packId);
   if (!pack) return;
-  pack.generationInstructions = document.getElementById('gInstructions').value;
+  const val = document.getElementById('gInstructions').value;
+  pack.generationInstructions = val;
+  packInstructionOverrides[packId] = val;
+  try { localStorage.setItem('toll_pack_instructions', JSON.stringify(packInstructionOverrides)); } catch(e) {}
   if (pack.custom) saveCustomPacks();
   document.getElementById('saveInstrBtn').style.display = 'none';
   toast('Instructions saved ✓', 'success');
