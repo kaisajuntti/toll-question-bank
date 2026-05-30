@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.12</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.13</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1276,6 +1276,7 @@ const PACKS = [
   // ── SPECIALS ──
   { id: "idiot-question",   cat: "specials", name: "The Idiot Question", special: "binary",  levels: ["Pool"] },
   { id: "bluff",            cat: "specials", name: "Bluff",              special: "bluff",   levels: ["Easy","Medium","Hard"] },
+  { id: "mindful-quotes",   cat: "specials", name: "Mindful Quotes",     special: "quotes",  icon: "🌿", levels: ["Pool"] },
 ];
 
 // Question bank: packId → levelIndex → [questions]
@@ -1313,6 +1314,10 @@ QB["number-sequences"][0] = [
 ];
 QB["bluff"][0] = [
   { id:"bl001", q:"About ABBA — spot the lie:\nA) ABBA formed in Stockholm in 1972\nB) ABBA stands for the first letters of each member's name\nC) ABBA won Eurovision with 'Waterloo' in 1973", answers:["A is false","B is false","C is false"], correct:2 },
+];
+QB["mindful-quotes"][0] = [
+  { id:"mq001", quote:"The present moment is the only moment available to us, and it is the door to all moments.", author:"Thich Nhat Hanh" },
+  { id:"mq002", quote:"Almost everything will work again if you unplug it for a few minutes, including you.", author:"Anne Lamott" },
 ];
 
 // ═══════════════════════════════════════════════════
@@ -1474,8 +1479,11 @@ function renderMain() {
   const totalQ = levels.reduce((s,l) => s + l.length, 0);
   const TARGET = 100;
 
+  const isQuotes = pack.special === 'quotes';
   const filtered = level.filter(q =>
-    !state.search || q.q.toLowerCase().includes(state.search.toLowerCase())
+    !state.search || (isQuotes
+      ? (q.quote || '').toLowerCase().includes(state.search.toLowerCase()) || (q.author || '').toLowerCase().includes(state.search.toLowerCase())
+      : (q.q || '').toLowerCase().includes(state.search.toLowerCase()))
   );
 
   const pct = Math.min(100, Math.round((level.length / TARGET) * 100));
@@ -1554,77 +1562,120 @@ function renderMain() {
             oninput="state.search=this.value;renderMain()">
         </div>
         <span class="q-count-label">${filtered.length} shown</span>
-        ${!state.addingQ ? `<button class="q-btn" onclick="startAddQ()" style="white-space:nowrap;padding:4px 10px">+ Add Question</button>` : ''}
+        ${!state.addingQ ? `<button class="q-btn" onclick="startAddQ()" style="white-space:nowrap;padding:4px 10px">+ Add ${isQuotes ? 'Quote' : 'Question'}</button>` : ''}
       </div>`;
 
   if (state.addingQ) {
-    const ansCount = pack.special === 'binary' ? 2 : pack.special === 'bluff' ? 3 : 4;
-    html += `<div class="question-card" style="border-color:var(--gold-dim)">
-      <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;font-weight:600">New Question</div>
-      <textarea id="nq-text" rows="3" placeholder="Enter question text..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px"></textarea>
-      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">`;
-    for (let i = 0; i < ansCount; i++) {
-      html += `<label style="display:flex;align-items:center;gap:7px;cursor:pointer">
-        <input type="radio" name="nq-correct" value="${i}" ${i===0?'checked':''} style="accent-color:var(--green);flex-shrink:0">
-        <input type="text" id="nq-ans-${i}" placeholder="Answer ${i+1}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace">
-      </label>`;
-    }
-    html += `</div>
-      <div class="q-footer">
-        <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
-        <div class="q-actions" style="opacity:1">
-          <button class="q-btn" onclick="cancelAddQ()">Cancel</button>
-          <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveNewQ()">Save</button>
+    if (isQuotes) {
+      html += `<div class="question-card" style="border-color:var(--gold-dim)">
+        <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;font-weight:600">New Quote</div>
+        <textarea id="nq-quote" rows="3" placeholder="Enter quote text..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px;font-style:italic"></textarea>
+        <input type="text" id="nq-author" placeholder="Author name" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:10px">
+        <div class="q-footer">
+          <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
+          <div class="q-actions" style="opacity:1">
+            <button class="q-btn" onclick="cancelAddQ()">Cancel</button>
+            <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveNewQ()">Save</button>
+          </div>
         </div>
-      </div>
-    </div>`;
+      </div>`;
+    } else {
+      const ansCount = pack.special === 'binary' ? 2 : pack.special === 'bluff' ? 3 : 4;
+      html += `<div class="question-card" style="border-color:var(--gold-dim)">
+        <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;font-weight:600">New Question</div>
+        <textarea id="nq-text" rows="3" placeholder="Enter question text..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px"></textarea>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">`;
+      for (let i = 0; i < ansCount; i++) {
+        html += `<label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+          <input type="radio" name="nq-correct" value="${i}" ${i===0?'checked':''} style="accent-color:var(--green);flex-shrink:0">
+          <input type="text" id="nq-ans-${i}" placeholder="Answer ${i+1}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace">
+        </label>`;
+      }
+      html += `</div>
+        <div class="q-footer">
+          <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
+          <div class="q-actions" style="opacity:1">
+            <button class="q-btn" onclick="cancelAddQ()">Cancel</button>
+            <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveNewQ()">Save</button>
+          </div>
+        </div>
+      </div>`;
+    }
   }
 
   if (filtered.length === 0 && !state.addingQ) {
     html += `<div class="empty-state">
-      <div class="empty-icon">${pack.algo ? '🔢' : '✦'}</div>
-      <div class="empty-title">No questions yet</div>
-      <div class="empty-sub">${pack.algo ? 'Click "Generate" to create all combinations algorithmically' : 'Click "AI Generate" or "+ Add Question" to add questions'}</div>
+      <div class="empty-icon">${pack.algo ? '🔢' : isQuotes ? '🌿' : '✦'}</div>
+      <div class="empty-title">No ${isQuotes ? 'quotes' : 'questions'} yet</div>
+      <div class="empty-sub">${pack.algo ? 'Click "Generate" to create all combinations algorithmically' : isQuotes ? 'Click "AI Generate" or "+ Add Quote" to add quotes' : 'Click "AI Generate" or "+ Add Question" to add questions'}</div>
     </div>`;
   } else {
     filtered.forEach(q => {
       if (state.editingQid === q.id) {
-        const rows = Math.max(3, q.q.split('\n').length + 1);
-        html += `<div class="question-card" style="border-color:var(--border-hover)">
-          <textarea id="eq-text" rows="${rows}" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px">${esc(q.q)}</textarea>
-          <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">`;
-        q.answers.forEach((a, ai) => {
-          const isCorrect = ai === q.correct;
-          html += `<label style="display:flex;align-items:center;gap:7px;cursor:pointer">
-            <input type="radio" name="eq-correct" value="${ai}" ${isCorrect?'checked':''} style="accent-color:var(--green);flex-shrink:0">
-            <input type="text" id="eq-ans-${ai}" value="${esc(a)}" style="flex:1;background:var(--surface2);border:1px solid ${isCorrect?'rgba(90,175,122,0.3)':'var(--border)'};border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace">
-          </label>`;
-        });
-        html += `</div>
-          <div class="q-footer">
-            <span class="q-id">#${q.id}</span>
-            <div class="q-actions" style="opacity:1">
-              <button class="q-btn" onclick="cancelEditQ()">Cancel</button>
-              <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveQ('${q.id}')">Save</button>
+        if (isQuotes) {
+          html += `<div class="question-card" style="border-color:var(--border-hover)">
+            <textarea id="eq-quote" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px;font-style:italic">${esc(q.quote)}</textarea>
+            <input type="text" id="eq-author" value="${esc(q.author)}" placeholder="Author name" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:10px">
+            <div class="q-footer">
+              <span class="q-id">#${q.id}</span>
+              <div class="q-actions" style="opacity:1">
+                <button class="q-btn" onclick="cancelEditQ()">Cancel</button>
+                <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveQ('${q.id}')">Save</button>
+              </div>
             </div>
-          </div>
-        </div>`;
+          </div>`;
+        } else {
+          const rows = Math.max(3, q.q.split('\n').length + 1);
+          html += `<div class="question-card" style="border-color:var(--border-hover)">
+            <textarea id="eq-text" rows="${rows}" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px">${esc(q.q)}</textarea>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">`;
+          q.answers.forEach((a, ai) => {
+            const isCorrect = ai === q.correct;
+            html += `<label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+              <input type="radio" name="eq-correct" value="${ai}" ${isCorrect?'checked':''} style="accent-color:var(--green);flex-shrink:0">
+              <input type="text" id="eq-ans-${ai}" value="${esc(a)}" style="flex:1;background:var(--surface2);border:1px solid ${isCorrect?'rgba(90,175,122,0.3)':'var(--border)'};border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace">
+            </label>`;
+          });
+          html += `</div>
+            <div class="q-footer">
+              <span class="q-id">#${q.id}</span>
+              <div class="q-actions" style="opacity:1">
+                <button class="q-btn" onclick="cancelEditQ()">Cancel</button>
+                <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveQ('${q.id}')">Save</button>
+              </div>
+            </div>
+          </div>`;
+        }
       } else {
-        html += `<div class="question-card">
-          <div class="q-text">${q.q}</div>
-          <div class="q-answers">`;
-        q.answers.forEach((a,i) => {
-          html += `<span class="q-answer ${i===q.correct?'correct':''}">${a}</span>`;
-        });
-        html += `</div>
-          <div class="q-footer">
-            <span class="q-id">#${q.id}</span>
-            <div class="q-actions">
-              <button class="q-btn" onclick="editQ('${q.id}')">Edit</button>
-              <button class="q-btn del" onclick="delQ('${q.id}')" title="Delete">×</button>
+        if (isQuotes) {
+          html += `<div class="question-card">
+            <div class="q-text" style="font-style:italic;font-size:14px;line-height:1.6;color:var(--text)">"${q.quote}"</div>
+            <div style="margin-top:6px;font-size:12px;color:var(--text-mid);font-family:'DM Mono',monospace">— ${q.author}</div>
+            <div class="q-footer">
+              <span class="q-id">#${q.id}</span>
+              <div class="q-actions">
+                <button class="q-btn" onclick="editQ('${q.id}')">Edit</button>
+                <button class="q-btn del" onclick="delQ('${q.id}')" title="Delete">×</button>
+              </div>
             </div>
-          </div>
-        </div>`;
+          </div>`;
+        } else {
+          html += `<div class="question-card">
+            <div class="q-text">${q.q}</div>
+            <div class="q-answers">`;
+          q.answers.forEach((a,i) => {
+            html += `<span class="q-answer ${i===q.correct?'correct':''}">${a}</span>`;
+          });
+          html += `</div>
+            <div class="q-footer">
+              <span class="q-id">#${q.id}</span>
+              <div class="q-actions">
+                <button class="q-btn" onclick="editQ('${q.id}')">Edit</button>
+                <button class="q-btn del" onclick="delQ('${q.id}')" title="Delete">×</button>
+              </div>
+            </div>
+          </div>`;
+        }
       }
     });
   }
@@ -1892,9 +1943,15 @@ async function generateAIForLevel(pack, levelIdx, apiKey) {
   const count = state.genCount;
   const isBluff = pack.special === 'bluff';
   const isBinary = pack.special === 'binary';
+  const isQuotes = pack.special === 'quotes';
 
   let prompt = '';
-  if (isBluff) {
+  if (isQuotes) {
+    prompt = `Generate ${count} mindful, reflective quotes for a wellness app. Mix well-known and lesser-known authors. Themes: presence, patience, perspective, growth, stillness.
+${instructions ? `Instructions: ${instructions}` : ''}
+Return ONLY a valid JSON array:
+[{"quote":"text","author":"Name"}]`;
+  } else if (isBluff) {
     prompt = `Generate ${count} Bluff quiz questions for an educational app called Toll.
 Pack: ${pack.name}, Level: ${level}
 Each question shows 3 statements about a topic. 2 are true, 1 is false. The player spots the lie.
@@ -1946,12 +2003,21 @@ Vary which index (0-3) is correct.`;
 
   const prefix = pack.id.replace(/-/g,'').substring(0,4).toUpperCase();
   const existing = QB[pack.id][levelIdx].length;
-  const newQs = qs.map((q, idx) => ({
-    id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
-    q: q.q,
-    answers: q.answers,
-    correct: q.correct
-  }));
+  let newQs;
+  if (isQuotes) {
+    newQs = qs.map((q, idx) => ({
+      id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
+      quote: q.quote,
+      author: q.author
+    }));
+  } else {
+    newQs = qs.map((q, idx) => ({
+      id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
+      q: q.q,
+      answers: q.answers,
+      correct: q.correct
+    }));
+  }
 
   QB[pack.id][levelIdx].push(...newQs);
   return newQs.length;
@@ -1984,10 +2050,16 @@ async function generateAI() {
 
   const isBluff = pack.special === 'bluff';
   const isBinary = pack.special === 'binary';
+  const isQuotes = pack.special === 'quotes';
 
   let prompt = '';
 
-  if (isBluff) {
+  if (isQuotes) {
+    prompt = `Generate ${count} mindful, reflective quotes for a wellness app. Mix well-known and lesser-known authors. Themes: presence, patience, perspective, growth, stillness.
+${instructions ? `Instructions: ${instructions}` : ''}
+Return ONLY a valid JSON array:
+[{"quote":"text","author":"Name"}]`;
+  } else if (isBluff) {
     prompt = `Generate ${count} Bluff quiz questions for an educational app called Toll.
 Pack: ${pack.name}, Level: ${level}
 Each question shows 3 statements about a topic. 2 are true, 1 is false. The player spots the lie.
@@ -2042,28 +2114,44 @@ Vary which index (0-3) is correct.`;
 
     const prefix = packId.replace(/-/g,'').substring(0,4).toUpperCase();
     const existing = QB[packId][levelIdx].length;
-    const newQs = qs.map((q,i) => ({
-      id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
-      q: q.q,
-      answers: q.answers,
-      correct: q.correct
-    }));
+    let newQs;
+    if (isQuotes) {
+      newQs = qs.map((q,i) => ({
+        id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
+        quote: q.quote,
+        author: q.author
+      }));
+    } else {
+      newQs = qs.map((q,i) => ({
+        id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
+        q: q.q,
+        answers: q.answers,
+        correct: q.correct
+      }));
+    }
 
     // Show preview
     let html = `<div class="preview-wrap">
       <div class="preview-header">
-        <span>${newQs.length} questions ready</span>
+        <span>${newQs.length} ${isQuotes ? 'quotes' : 'questions'} ready</span>
         <span class="ok">✓</span>
       </div>`;
 
     newQs.slice(0,4).forEach(q => {
-      html += `<div class="preview-q">
-        <div class="preview-q-text">${q.q}</div>
-        <div class="preview-answers">`;
-      q.answers.forEach((a,i) => {
-        html += `<span class="preview-answer ${i===q.correct?'correct':''}">${a}</span>`;
-      });
-      html += `</div></div>`;
+      if (isQuotes) {
+        html += `<div class="preview-q">
+          <div class="preview-q-text" style="font-style:italic">"${q.quote}"</div>
+          <div style="font-size:11px;color:var(--text-mid);margin-top:4px;font-family:'DM Mono',monospace">— ${q.author}</div>
+        </div>`;
+      } else {
+        html += `<div class="preview-q">
+          <div class="preview-q-text">${q.q}</div>
+          <div class="preview-answers">`;
+        q.answers.forEach((a,i) => {
+          html += `<span class="preview-answer ${i===q.correct?'correct':''}">${a}</span>`;
+        });
+        html += `</div></div>`;
+      }
     });
 
     if (newQs.length > 4) {
@@ -2116,24 +2204,34 @@ function cancelEditQ() {
 }
 
 function saveQ(qid) {
-  const textEl = document.getElementById('eq-text');
-  if (!textEl) return;
-  const text = textEl.value.trim();
-  if (!text) { toast("Question text can't be empty", "error"); return; }
-
   const level = QB[state.packId][state.levelIdx];
   const qi = level.findIndex(q => q.id === qid);
   if (qi === -1) return;
-
   const q = level[qi];
-  const answers = q.answers.map((_, i) => {
-    const el = document.getElementById(`eq-ans-${i}`);
-    return el ? el.value.trim() : q.answers[i];
-  });
-  let correct = q.correct;
-  document.querySelectorAll('input[name="eq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
 
-  level[qi] = { id: q.id, q: text, answers, correct };
+  const pack = PACKS.find(p => p.id === state.packId);
+  if (pack && pack.special === 'quotes') {
+    const quoteEl = document.getElementById('eq-quote');
+    const authorEl = document.getElementById('eq-author');
+    if (!quoteEl) return;
+    const quote = quoteEl.value.trim();
+    const author = (authorEl ? authorEl.value.trim() : '') || 'Unknown';
+    if (!quote) { toast("Quote text can't be empty", "error"); return; }
+    level[qi] = { id: q.id, quote, author };
+  } else {
+    const textEl = document.getElementById('eq-text');
+    if (!textEl) return;
+    const text = textEl.value.trim();
+    if (!text) { toast("Question text can't be empty", "error"); return; }
+    const answers = q.answers.map((_, i) => {
+      const el = document.getElementById(`eq-ans-${i}`);
+      return el ? el.value.trim() : q.answers[i];
+    });
+    let correct = q.correct;
+    document.querySelectorAll('input[name="eq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+    level[qi] = { id: q.id, q: text, answers, correct };
+  }
+
   save();
   state.editingQid = null;
   renderMain();
@@ -2159,30 +2257,39 @@ function newQid(packId) {
 }
 
 function saveNewQ() {
-  const textEl = document.getElementById('nq-text');
-  if (!textEl) return;
-  const text = textEl.value.trim();
-  if (!text) { toast("Question text can't be empty", "error"); return; }
-
   const pack = PACKS.find(p => p.id === state.packId);
-  const ansCount = pack.special === 'binary' ? 2 : pack.special === 'bluff' ? 3 : 4;
-  const answers = [];
-  for (let i = 0; i < ansCount; i++) {
-    const el = document.getElementById(`nq-ans-${i}`);
-    const val = el ? el.value.trim() : '';
-    if (!val) { toast(`Answer ${i+1} can't be empty`, "error"); return; }
-    answers.push(val);
+
+  if (pack && pack.special === 'quotes') {
+    const quoteEl = document.getElementById('nq-quote');
+    const authorEl = document.getElementById('nq-author');
+    if (!quoteEl) return;
+    const quote = quoteEl.value.trim();
+    const author = (authorEl ? authorEl.value.trim() : '') || 'Unknown';
+    if (!quote) { toast("Quote text can't be empty", "error"); return; }
+    QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), quote, author });
+  } else {
+    const textEl = document.getElementById('nq-text');
+    if (!textEl) return;
+    const text = textEl.value.trim();
+    if (!text) { toast("Question text can't be empty", "error"); return; }
+    const ansCount = pack.special === 'binary' ? 2 : pack.special === 'bluff' ? 3 : 4;
+    const answers = [];
+    for (let i = 0; i < ansCount; i++) {
+      const el = document.getElementById(`nq-ans-${i}`);
+      const val = el ? el.value.trim() : '';
+      if (!val) { toast(`Answer ${i+1} can't be empty`, "error"); return; }
+      answers.push(val);
+    }
+    let correct = 0;
+    document.querySelectorAll('input[name="nq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+    QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), q: text, answers, correct });
   }
 
-  let correct = 0;
-  document.querySelectorAll('input[name="nq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
-
-  QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), q: text, answers, correct });
   save();
   state.addingQ = false;
   renderSidebar();
   renderMain();
-  toast("Question added ✓", "success");
+  toast(`${pack && pack.special === 'quotes' ? 'Quote' : 'Question'} added ✓`, "success");
 }
 
 // ═══════════════════════════════════════════════════
@@ -2248,6 +2355,7 @@ function exportManifest() {
 }
 
 function buildPackJSON(pack, cat) {
+  const isQuotes = pack.special === 'quotes';
   return {
     id: pack.id,
     name: pack.name,
@@ -2263,12 +2371,10 @@ function buildPackJSON(pack, cat) {
         name: lName,
         defaultQuestions: ld.questions,
         defaultTime: ld.time,
-        questions: (QB[pack.id][i] || []).map(q => ({
-          id: q.id,
-          question: q.q,
-          answers: q.answers,
-          correctIndex: q.correct
-        }))
+        questions: (QB[pack.id][i] || []).map(q => isQuotes
+          ? { id: q.id, quote: q.quote, author: q.author }
+          : { id: q.id, question: q.q, answers: q.answers, correctIndex: q.correct }
+        )
       };
     })
   };
