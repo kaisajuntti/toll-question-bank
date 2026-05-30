@@ -26,9 +26,14 @@ Quotes question format: { id, quote, author } — used when pack.special === "qu
 Custom pack extra fields: { userDescription, generationInstructions, icon, custom: true }
 
 ## Special pack types
+Packs with a `special` field are hardcoded — they cannot be deleted from the Manage panel and cannot be created via the New Pack form. Adding or removing a special pack requires a code change in `index.html` (PACKS array + QB seed + all `isSpecial`/`isQuotes`/etc. branches).
+
+Current specials:
 - `binary` — 2-answer Yes/No questions (e.g. The Idiot Question)
 - `bluff` — 3 statements, spot the lie (e.g. Bluff)
 - `quotes` — no multiple choice; format is { id, quote, author } throughout (display, add/edit forms, AI generation, export)
+
+The Manage panel shows special packs with a SPECIAL badge and 🔒 icon. The delete button is hidden and `deletePack()` has a hard guard that rejects attempts to delete them.
 
 ## Key architecture notes
 - `PACKS` array is `const` but mutable — custom packs are pushed at runtime

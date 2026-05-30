@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.13</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.14</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2407,7 +2407,11 @@ function renderManagePanel() {
   let html = '';
 
   // Section 1 — existing packs
-  html += `<div class="manage-section"><div class="manage-section-title">Existing Packs</div>`;
+  html += `<div class="manage-section">
+    <div class="manage-section-title">Existing Packs</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5">
+      Packs marked <strong style="color:var(--gold-dim)">SPECIAL</strong> have bespoke question formats and app behaviour. They are hardcoded — adding or removing one requires a code change in <code style="font-family:'DM Mono',monospace;font-size:11px">index.html</code>.
+    </div>`;
   Object.keys(CATS).forEach(catId => {
     const cat = CATS[catId];
     const catPacks = PACKS.filter(p => p.cat === catId);
@@ -2416,13 +2420,17 @@ function renderManagePanel() {
     catPacks.forEach(p => {
       const count = (QB[p.id] || []).reduce((s,l) => s + l.length, 0);
       const icon = p.icon || cat.icon;
+      const isSpecial = !!p.special;
       html += `<div class="pack-row">
         <div class="pack-row-info">
           <span class="pack-row-icon">${icon}</span>
           <span class="pack-row-name">${p.name}</span>
           <span class="pack-row-count">${count}q · ${p.levels.length} levels</span>
+          ${isSpecial ? `<span style="font-size:10px;letter-spacing:0.5px;color:var(--gold-dim);font-weight:600;padding:1px 6px;border:1px solid rgba(196,163,90,0.2);border-radius:4px">SPECIAL</span>` : ''}
         </div>
-        <button class="pack-row-del" onclick="deletePack('${p.id}')">×</button>
+        ${isSpecial
+          ? `<span title="Special packs require a code change to add or remove" style="font-size:16px;color:var(--text-dim);padding:0 6px;cursor:default">🔒</span>`
+          : `<button class="pack-row-del" onclick="deletePack('${p.id}')">×</button>`}
       </div>`;
     });
   });
@@ -2506,6 +2514,7 @@ function createPack() {
 function deletePack(id) {
   const pack = PACKS.find(p => p.id === id);
   if (!pack) return;
+  if (pack.special) { toast("Special packs can't be deleted — requires a code change", "error"); return; }
   if (!confirm(`Delete "${pack.name}" and all its questions?`)) return;
 
   PACKS.splice(PACKS.findIndex(p => p.id === id), 1);
