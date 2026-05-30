@@ -1002,6 +1002,81 @@ body {
 
 .btn-create:hover { background: var(--gold-bright); }
 
+/* ── LEVEL SETTINGS BAR ── */
+.level-settings {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 7px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.level-setting {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.level-setting-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.ls-stepper { display: flex; align-items: center; gap: 5px; }
+
+.ls-step-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.ls-step-btn:hover { border-color: var(--border-hover); color: var(--text); }
+
+.ls-step-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text-mid);
+  min-width: 14px;
+  text-align: center;
+}
+
+.ls-seg {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ls-seg-btn {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.ls-seg-btn:last-child { border-right: none; }
+.ls-seg-btn:hover { color: var(--text-mid); background: var(--surface2); }
+.ls-seg-btn.active { background: var(--surface2); color: var(--gold); }
+
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1289,6 +1364,34 @@ let state = {
   panelOpen: false
 };
 
+let levelDefaults = {};
+
+function getLevelDefault(packId, levelIdx) {
+  return (levelDefaults[packId] && levelDefaults[packId][String(levelIdx)])
+    || { questions: 2, time: 30 };
+}
+
+function setLevelDefault(packId, levelIdx, key, value) {
+  if (!levelDefaults[packId]) levelDefaults[packId] = {};
+  const k = String(levelIdx);
+  if (!levelDefaults[packId][k]) levelDefaults[packId][k] = { questions: 2, time: 30 };
+  levelDefaults[packId][k][key] = value;
+  try { localStorage.setItem('toll_level_defaults', JSON.stringify(levelDefaults)); } catch(e) {}
+}
+
+function adjLevelQ(d) {
+  if (!state.packId) return;
+  const cur = getLevelDefault(state.packId, state.levelIdx);
+  setLevelDefault(state.packId, state.levelIdx, 'questions', Math.max(1, Math.min(4, cur.questions + d)));
+  renderMain();
+}
+
+function setLevelTime(t) {
+  if (!state.packId) return;
+  setLevelDefault(state.packId, state.levelIdx, 'time', t);
+  renderMain();
+}
+
 // ═══════════════════════════════════════════════════
 // PERSIST
 // ═══════════════════════════════════════════════════
@@ -1310,6 +1413,8 @@ function load() {
       document.getElementById('apiKeyInput').value = key;
       updateKeyStatus(key);
     }
+    const ld = localStorage.getItem('toll_level_defaults');
+    if (ld) levelDefaults = JSON.parse(ld);
   } catch(e) {}
 }
 
@@ -1386,6 +1491,7 @@ function renderMain() {
         <div class="pack-actions">
           ${pack.algo ? `<button class="btn btn-algo" onclick="openPanelForPack()">🔢 Generate</button>` : `<button class="btn btn-ai" onclick="openPanelForPack()">✦ AI Generate</button>`}
           <button class="btn btn-secondary" onclick="exportPack()">Export JSON</button>
+          <button class="btn btn-secondary" onclick="exportManifest()">Manifest</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -1405,7 +1511,25 @@ function renderMain() {
     </div>`;
   });
 
+  const ld = getLevelDefault(pack.id, state.levelIdx);
+  const timeOpts = [15, 30, 45, 60];
   html += `</div>
+    <div class="level-settings">
+      <div class="level-setting">
+        <span class="level-setting-label">Default questions</span>
+        <div class="ls-stepper">
+          <button class="ls-step-btn" onclick="adjLevelQ(-1)">−</button>
+          <span class="ls-step-val">${ld.questions}</span>
+          <button class="ls-step-btn" onclick="adjLevelQ(1)">+</button>
+        </div>
+      </div>
+      <div class="level-setting">
+        <span class="level-setting-label">Default time</span>
+        <div class="ls-seg">
+          ${timeOpts.map(t => `<button class="ls-seg-btn${ld.time === t ? ' active' : ''}" onclick="setLevelTime(${t})">${t}s</button>`).join('')}
+        </div>
+      </div>
+    </div>
     <div class="questions-wrap">
       <div class="q-toolbar">
         <div class="search-wrap">
@@ -1818,26 +1942,45 @@ function exportAll() {
   toast("Exported all packs!", "success");
 }
 
+function exportManifest() {
+  const today = new Date().toISOString().slice(0, 10);
+  const packs = PACKS.map(p => ({
+    id: p.id,
+    name: p.name,
+    category: p.cat,
+    icon: p.icon || CATS[p.cat].icon,
+    levelCount: p.levels.length,
+    questionCount: (QB[p.id] || []).reduce((s,l) => s + l.length, 0),
+    version: 1
+  }));
+  downloadJSON('manifest.json', { version: 1, generated: today, packs });
+  toast("manifest.json exported ✓", "success");
+}
+
 function buildPackJSON(pack, cat) {
   return {
     id: pack.id,
     name: pack.name,
     category: pack.cat,
-    icon: cat.icon,
+    icon: pack.icon || cat.icon,
+    categoryMeta: { id: pack.cat, label: cat.label, icon: cat.icon },
     algorithmic: pack.algo || null,
     special: pack.special || null,
-    levels: pack.levels.map((lName, i) => ({
-      id: lName.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-      name: lName,
-      defaultQuestions: 2,
-      defaultTime: 30,
-      questions: (QB[pack.id][i] || []).map(q => ({
-        id: q.id,
-        question: q.q,
-        answers: q.answers,
-        correctIndex: q.correct
-      }))
-    }))
+    levels: pack.levels.map((lName, i) => {
+      const ld = getLevelDefault(pack.id, i);
+      return {
+        id: lName.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+        name: lName,
+        defaultQuestions: ld.questions,
+        defaultTime: ld.time,
+        questions: (QB[pack.id][i] || []).map(q => ({
+          id: q.id,
+          question: q.q,
+          answers: q.answers,
+          correctIndex: q.correct
+        }))
+      };
+    })
   };
 }
 
