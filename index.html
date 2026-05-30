@@ -1204,8 +1204,9 @@ body {
         </div>
       </div>
       <div class="field">
-        <label>Additional instructions (optional)</label>
-        <textarea id="gInstructions" placeholder="e.g. Focus on European capitals, avoid very obscure answers, questions in Swedish..."></textarea>
+        <label>AI generation instructions</label>
+        <textarea id="gInstructions" placeholder="e.g. Focus on European capitals, avoid very obscure answers, questions in Swedish..." oninput="onInstructionsEdit()"></textarea>
+        <button id="saveInstrBtn" onclick="savePackInstructions()" style="display:none;margin-top:6px;padding:5px 12px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-mid);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s" onmouseover="this.style.borderColor='var(--border-hover)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)'">Save instructions</button>
       </div>
       <button class="btn-generate" id="genBtn" onclick="generateAI()">
         <span id="genBtnText">✦ Generate with AI</span>
@@ -1339,20 +1340,17 @@ function loadCustomPacks() {
     const d = localStorage.getItem('toll_custom_packs');
     if (d) {
       JSON.parse(d).forEach(p => {
-        console.log('[loadCustomPacks] pack:', p.id, { userDescription: p.userDescription, generationInstructions: p.generationInstructions });
         if (!PACKS.find(e => e.id === p.id)) {
           PACKS.push(p);
           if (!QB[p.id]) QB[p.id] = p.levels.map(() => []);
         }
       });
     }
-  } catch(e) { console.error('[loadCustomPacks] error:', e); }
+  } catch(e) {}
 }
 
 function saveCustomPacks() {
-  const custom = PACKS.filter(p => p.custom);
-  console.log('[saveCustomPacks]', custom.map(p => ({ id: p.id, userDescription: p.userDescription, generationInstructions: p.generationInstructions })));
-  try { localStorage.setItem('toll_custom_packs', JSON.stringify(custom)); } catch(e) { console.error('[saveCustomPacks] error:', e); }
+  try { localStorage.setItem('toll_custom_packs', JSON.stringify(PACKS.filter(p => p.custom))); } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════
@@ -1464,7 +1462,6 @@ function renderMain() {
   if (!state.packId) return;
 
   const pack = PACKS.find(p => p.id === state.packId);
-  console.log('[renderMain] pack:', pack.id, 'userDescription:', pack.userDescription);
   const cat = CATS[pack.cat];
   const levels = QB[pack.id];
   const level = levels[state.levelIdx];
@@ -1670,8 +1667,8 @@ function onPackChange() {
   }
 
   document.getElementById('previewArea').innerHTML = '';
-  console.log('[onPackChange] pack:', packId, 'generationInstructions:', pack.generationInstructions);
   document.getElementById('gInstructions').value = pack.generationInstructions || '';
+  document.getElementById('saveInstrBtn').style.display = 'none';
 }
 
 // ═══════════════════════════════════════════════════
@@ -2102,7 +2099,6 @@ function createPack() {
   if (PACKS.find(p => p.id === id)) { toast(`A pack with id "${id}" already exists`, "error"); return; }
 
   const newPack = { id, cat, name, icon, levels, userDescription, generationInstructions, custom: true };
-  console.log('[createPack]', JSON.stringify({ id, userDescription, generationInstructions }));
   PACKS.push(newPack);
   QB[id] = levels.map(() => []);
 
@@ -2146,6 +2142,25 @@ function deletePack(id) {
   renderSidebar();
   renderManagePanel();
   toast(`Deleted "${pack.name}"`, "");
+}
+
+function onInstructionsEdit() {
+  const packId = document.getElementById('gPack').value;
+  const pack = PACKS.find(p => p.id === packId);
+  if (!pack) return;
+  const current = pack.generationInstructions || '';
+  const edited = document.getElementById('gInstructions').value;
+  document.getElementById('saveInstrBtn').style.display = edited !== current ? 'block' : 'none';
+}
+
+function savePackInstructions() {
+  const packId = document.getElementById('gPack').value;
+  const pack = PACKS.find(p => p.id === packId);
+  if (!pack) return;
+  pack.generationInstructions = document.getElementById('gInstructions').value;
+  if (pack.custom) saveCustomPacks();
+  document.getElementById('saveInstrBtn').style.display = 'none';
+  toast('Instructions saved ✓', 'success');
 }
 
 // ═══════════════════════════════════════════════════
