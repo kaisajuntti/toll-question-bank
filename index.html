@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.10</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-30.11</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2454,7 +2454,6 @@ function savePackInstructions() {
   packInstructionOverrides[packId] = val;
   try { localStorage.setItem('toll_pack_instructions', JSON.stringify(packInstructionOverrides)); } catch(e) {}
   if (pack.custom) saveCustomPacks();
-  document.getElementById('saveInstrBtn').style.display = 'none';
   toast('Instructions saved ✓', 'success');
 }
 
