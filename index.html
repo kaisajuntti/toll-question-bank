@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.5</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.6</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1449,7 +1449,13 @@ function load() {
     const d = localStorage.getItem('toll_qb');
     if (d) {
       const parsed = JSON.parse(d);
-      Object.keys(parsed).forEach(k => { if (QB[k]) QB[k] = parsed[k]; });
+      Object.keys(parsed).forEach(k => {
+        if (QB[k]) {
+          QB[k] = parsed[k];
+          const pack = PACKS.find(p => p.id === k);
+          if (pack) while (QB[k].length < pack.levels.length) QB[k].push([]);
+        }
+      });
     }
     const key = localStorage.getItem('toll_api_key');
     if (key) {
