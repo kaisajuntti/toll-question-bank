@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.2</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.3</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2463,15 +2463,9 @@ function renderManagePanel() {
   html += `<div class="manage-section">
     <div class="manage-section-title">New Pack</div>
     <div class="manage-form">
-      <div class="form-row">
-        <div class="field" style="flex:3">
-          <label>Name</label>
-          <input type="text" id="npName" placeholder="e.g. World History">
-        </div>
-        <div class="field" style="flex:1">
-          <label>Icon</label>
-          <input type="text" id="npIcon" placeholder="🌍" maxlength="4">
-        </div>
+      <div class="field">
+        <label>Name</label>
+        <input type="text" id="npName" placeholder="e.g. World History">
       </div>
       <div class="field">
         <label>Category</label>
@@ -2526,8 +2520,8 @@ function createPack() {
   const name = document.getElementById('npName').value.trim();
   if (!name) { toast("Pack name is required", "error"); return; }
 
-  const icon = document.getElementById('npIcon').value.trim() || '📦';
   const cat = document.getElementById('npCat').value;
+  const icon = CATS[cat] ? CATS[cat].icon : '📦';
   const userDescription = document.getElementById('npDesc').value.trim();
   const generationInstructions = document.getElementById('npInstructions').value.trim();
   const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['popular'];
