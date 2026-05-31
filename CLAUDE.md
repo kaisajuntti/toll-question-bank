@@ -76,11 +76,11 @@ See `buildPackJSON()` — includes:
 - [x] #2 New category + new pack creation (Manage panel — create/delete packs)
 - [x] #3 Default questions + time per level (compact settings bar below level tabs)
 - [x] #4 Export with category metadata + manifest.json
+- [x] #6 Generate all levels at once
+- [x] #7 Manual add + edit question
 
 ## Update log — REMAINING
 - [ ] #5 Duplicate detection
-- [ ] #6 Generate all levels at once
-- [ ] #7 Manual add + edit question (edit is done; manual ADD is not yet built)
 
 ## Features built (session summary)
 - **Backup/Restore**: header buttons, JSON file with { version, exported, QB }
