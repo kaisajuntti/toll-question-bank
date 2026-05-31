@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.11</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.12</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1240,7 +1240,7 @@ const CATS = {
   school: { label: "School", icon: "📚" },
   languages: { label: "Languages", icon: "🌐" },
   popular: { label: "Popular", icon: "🌍" },
-  iq: { label: "IQ", icon: "🧠" },
+  iq: { label: "Assessment Prep", icon: "🎯" },
   specials: { label: "Specials", icon: "⭐" }
 };
 
@@ -1297,6 +1297,15 @@ const PACKS = [
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning German. Test vocabulary (English→German translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (articles, plurals, everyday phrases), B1 (cases, modal verbs, past tense), B2 (Konjunktiv, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
   // ── IQ ──
+  { id: "numerical-reasoning", cat: "iq", name: "Numerical Reasoning",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "Data interpretation questions — NOT pure arithmetic. Present a short scenario with numerical data (e.g. a table, percentage, growth figure described in text), then ask a question requiring calculation or inference. Easy: single-step % or ratio from clear data. Medium: two-step interpretation. Hard: comparison across multiple figures. Expert: multi-step with implicit data. Keep numbers realistic and questions unambiguous." },
+  { id: "abstract-reasoning", cat: "iq", name: "Abstract Reasoning",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "Pattern recognition across number series, letter series, and shape/symbol sequences described in text. Easy: single arithmetic rule (×2, +3). Medium: alternating or compound rules. Hard: multi-layered patterns or letter+number combinations. Expert: complex abstract rules requiring lateral thinking. Always provide 4 plausible answer options — wrong answers should reflect common rule-misidentification." },
+  { id: "verbal-reasoning",   cat: "iq", name: "Verbal Reasoning", special: "verbal",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "Short passage (2-4 sentences of factual, neutral information) followed by a statement to evaluate. Easy: statement clearly stated or directly contradicted. Medium: requires careful reading and inference. Hard: subtle implications, partial information. Expert: complex passages with deliberate nuance and ambiguity. Balance True/False/Cannot Say across questions. Passages must be self-contained — no outside knowledge needed." },
   { id: "iq-number-seq",  cat: "iq", name: "Number Sequences",
     levels: ["Easy","Medium","Hard","Expert"],
     generationInstructions: "Find the next number in a sequence. Easy: simple arithmetic progressions (×2, +5). Medium: geometric or mixed rules. Hard: multi-rule patterns or combined operations. Expert: complex multi-step patterns, Fibonacci-like or polynomial. Always provide exactly 4 plausible answer choices — wrong answers should be nearby values that result from common mistakes. Format: 'What comes next? 2, 4, 8, 16, ?'" },
@@ -1406,7 +1415,7 @@ QB["mindful-quotes"][0] = [
 const LEVEL_PRESETS = {
   school:    ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
   popular:   ["Easy","Medium","Hard","Expert","Legendary"],
-  iq:        ["Easy","Medium","Hard","Expert","Legendary"],
+  iq:        ["Easy","Medium","Hard","Expert"],
   languages: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
   specials:  ["Pool"]
 };
@@ -1583,10 +1592,13 @@ function renderMain() {
   const TARGET = 100;
 
   const isQuotes = pack.special === 'quotes';
+  const isVerbal = pack.special === 'verbal';
   const filtered = level.filter(q =>
-    !state.search || (isQuotes
-      ? (q.quote || '').toLowerCase().includes(state.search.toLowerCase()) || (q.author || '').toLowerCase().includes(state.search.toLowerCase())
-      : (q.q || '').toLowerCase().includes(state.search.toLowerCase()))
+    !state.search || (isVerbal
+      ? ((q.passage || '') + ' ' + (q.statement || '')).toLowerCase().includes(state.search.toLowerCase())
+      : isQuotes
+        ? (q.quote || '').toLowerCase().includes(state.search.toLowerCase()) || (q.author || '').toLowerCase().includes(state.search.toLowerCase())
+        : (q.q || '').toLowerCase().includes(state.search.toLowerCase()))
   );
 
   const pct = Math.min(100, Math.round((level.length / TARGET) * 100));
@@ -1673,12 +1685,36 @@ function renderMain() {
         ${!state.addingQ ? `<button class="q-btn" onclick="startAddQ()" style="white-space:nowrap;padding:4px 10px">+ Add ${isQuotes ? 'Quote' : 'Question'}</button>` : ''}
       </div>`;
 
+  const inputStyle = `width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:8px`;
+  const taStyle = `width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px`;
+  const labelHdr = `font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;font-weight:600`;
+  const verbalOpts = ['True','False','Cannot Say'];
   if (state.addingQ) {
     if (isQuotes) {
       html += `<div class="question-card" style="border-color:var(--gold-dim)">
-        <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;font-weight:600">New Quote</div>
-        <textarea id="nq-quote" rows="3" placeholder="Enter quote text..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px;font-style:italic"></textarea>
-        <input type="text" id="nq-author" placeholder="Author name" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:10px">
+        <div style="${labelHdr}">New Quote</div>
+        <textarea id="nq-quote" rows="3" placeholder="Enter quote text..." style="${taStyle};font-style:italic"></textarea>
+        <input type="text" id="nq-author" placeholder="Author name" style="${inputStyle}">
+        <div class="q-footer">
+          <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
+          <div class="q-actions" style="opacity:1">
+            <button class="q-btn" onclick="cancelAddQ()">Cancel</button>
+            <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveNewQ()">Save</button>
+          </div>
+        </div>
+      </div>`;
+    } else if (isVerbal) {
+      html += `<div class="question-card" style="border-color:var(--gold-dim)">
+        <div style="${labelHdr}">New Verbal Question</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Passage</div>
+        <textarea id="nq-passage" rows="4" placeholder="Enter the passage (2-4 sentences of factual info)..." style="${taStyle}"></textarea>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Statement to evaluate</div>
+        <input type="text" id="nq-statement" placeholder="Enter the statement..." style="${inputStyle}">
+        <div style="display:flex;gap:12px;margin-bottom:10px">
+          ${verbalOpts.map((opt,i) => `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text)">
+            <input type="radio" name="nq-correct" value="${i}" ${i===0?'checked':''} style="accent-color:var(--green)"> ${opt}
+          </label>`).join('')}
+        </div>
         <div class="q-footer">
           <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
           <div class="q-actions" style="opacity:1">
@@ -1713,7 +1749,7 @@ function renderMain() {
 
   if (filtered.length === 0 && !state.addingQ) {
     html += `<div class="empty-state">
-      <div class="empty-icon">${pack.algo ? '🔢' : isQuotes ? '🌿' : '✦'}</div>
+      <div class="empty-icon">${pack.algo ? '🔢' : isQuotes ? '🌿' : isVerbal ? '🗣' : '✦'}</div>
       <div class="empty-title">No ${isQuotes ? 'quotes' : 'questions'} yet</div>
       <div class="empty-sub">${pack.algo ? 'Click "Generate" to create all combinations algorithmically' : isQuotes ? 'Click "AI Generate" or "+ Add Quote" to add quotes' : 'Click "AI Generate" or "+ Add Question" to add questions'}</div>
     </div>`;
@@ -1722,8 +1758,27 @@ function renderMain() {
       if (state.editingQid === q.id) {
         if (isQuotes) {
           html += `<div class="question-card" style="border-color:var(--border-hover)">
-            <textarea id="eq-quote" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;line-height:1.5;margin-bottom:8px;font-style:italic">${esc(q.quote)}</textarea>
-            <input type="text" id="eq-author" value="${esc(q.author)}" placeholder="Author name" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:10px">
+            <textarea id="eq-quote" rows="3" style="${taStyle};font-style:italic">${esc(q.quote)}</textarea>
+            <input type="text" id="eq-author" value="${esc(q.author)}" placeholder="Author name" style="${inputStyle}">
+            <div class="q-footer">
+              <span class="q-id">#${q.id}</span>
+              <div class="q-actions" style="opacity:1">
+                <button class="q-btn" onclick="cancelEditQ()">Cancel</button>
+                <button class="q-btn" style="border-color:rgba(90,175,122,0.3);color:var(--green)" onclick="saveQ('${q.id}')">Save</button>
+              </div>
+            </div>
+          </div>`;
+        } else if (isVerbal) {
+          html += `<div class="question-card" style="border-color:var(--border-hover)">
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Passage</div>
+            <textarea id="eq-passage" rows="4" style="${taStyle}">${esc(q.passage)}</textarea>
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Statement</div>
+            <input type="text" id="eq-statement" value="${esc(q.statement)}" style="${inputStyle}">
+            <div style="display:flex;gap:12px;margin-bottom:10px">
+              ${verbalOpts.map((opt,i) => `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text)">
+                <input type="radio" name="eq-correct" value="${i}" ${q.correct===i?'checked':''} style="accent-color:var(--green)"> ${opt}
+              </label>`).join('')}
+            </div>
             <div class="q-footer">
               <span class="q-id">#${q.id}</span>
               <div class="q-actions" style="opacity:1">
@@ -1759,6 +1814,21 @@ function renderMain() {
           html += `<div class="question-card">
             <div class="q-text" style="font-style:italic;font-size:14px;line-height:1.6;color:var(--text)">"${q.quote}"</div>
             <div style="margin-top:6px;font-size:12px;color:var(--text-mid);font-family:'DM Mono',monospace">— ${q.author}</div>
+            <div class="q-footer">
+              <span class="q-id">#${q.id}</span>
+              <div class="q-actions">
+                <button class="q-btn" onclick="editQ('${q.id}')">Edit</button>
+                <button class="q-btn del" onclick="delQ('${q.id}')" title="Delete">×</button>
+              </div>
+            </div>
+          </div>`;
+        } else if (isVerbal) {
+          html += `<div class="question-card">
+            <div style="font-size:12px;color:var(--text-dim);font-style:italic;line-height:1.6;background:var(--surface2);padding:8px 10px;border-radius:5px;margin-bottom:8px">${esc(q.passage)}</div>
+            <div class="q-text" style="margin-bottom:8px">Statement: ${esc(q.statement)}</div>
+            <div class="q-answers">
+              ${verbalOpts.map((opt,i) => `<span class="q-answer ${i===q.correct?'correct':''}">${opt}</span>`).join('')}
+            </div>
             <div class="q-footer">
               <span class="q-id">#${q.id}</span>
               <div class="q-actions">
@@ -2034,7 +2104,7 @@ async function bootstrapAll() {
 
   const targets = [];
   PACKS.forEach(pack => {
-    if (pack.algo || pack.special) return;
+    if (pack.algo) return;
     pack.levels.forEach((name, i) => {
       if (isLevelNA(pack.id, i)) return;
       if ((QB[pack.id] && QB[pack.id][i] && QB[pack.id][i].length > 0)) return;
@@ -2074,9 +2144,20 @@ async function generateAIForLevel(pack, levelIdx, apiKey) {
   const isBluff = pack.special === 'bluff';
   const isBinary = pack.special === 'binary';
   const isQuotes = pack.special === 'quotes';
+  const isVerbal = pack.special === 'verbal';
 
   let prompt = '';
-  if (isQuotes) {
+  if (isVerbal) {
+    prompt = `Generate ${count} verbal reasoning questions for a cognitive aptitude assessment.
+Level: ${level} — Easy: statement clearly stated or directly contradicted. Medium: requires careful reading. Hard: subtle implications. Expert: complex nuance and ambiguity.
+Each question: a factual, neutral passage (2-4 sentences) + a statement to evaluate as True, False, or Cannot Say.
+True = clearly follows from the passage. False = contradicts the passage. Cannot Say = cannot be determined from the passage alone.
+Balance True/False/Cannot Say across the ${count} questions. Passages must be self-contained — no outside knowledge needed.
+${instructions ? `Instructions: ${instructions}` : ''}
+Return ONLY a valid JSON array:
+[{"passage":"...","statement":"...","correct":0}]
+correct: 0=True, 1=False, 2=Cannot Say`;
+  } else if (isQuotes) {
     prompt = `Generate ${count} mindful, reflective quotes for a wellness app. Mix well-known and lesser-known authors. Themes: presence, patience, perspective, growth, stillness.
 ${instructions ? `Instructions: ${instructions}` : ''}
 Return ONLY a valid JSON array:
@@ -2140,7 +2221,14 @@ Vary which index (0-3) is correct.`;
   const prefix = pack.id.replace(/-/g,'').substring(0,4).toUpperCase();
   const existing = QB[pack.id][levelIdx].length;
   let newQs;
-  if (isQuotes) {
+  if (isVerbal) {
+    newQs = qs.map((q, idx) => ({
+      id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
+      passage: q.passage,
+      statement: q.statement,
+      correct: q.correct
+    }));
+  } else if (isQuotes) {
     newQs = qs.map((q, idx) => ({
       id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
       quote: q.quote,
@@ -2187,10 +2275,21 @@ async function generateAI() {
   const isBluff = pack.special === 'bluff';
   const isBinary = pack.special === 'binary';
   const isQuotes = pack.special === 'quotes';
+  const isVerbal = pack.special === 'verbal';
 
   let prompt = '';
 
-  if (isQuotes) {
+  if (isVerbal) {
+    prompt = `Generate ${count} verbal reasoning questions for a cognitive aptitude assessment.
+Level: ${level} — Easy: statement clearly stated or directly contradicted. Medium: requires careful reading. Hard: subtle implications. Expert: complex nuance and ambiguity.
+Each question: a factual, neutral passage (2-4 sentences) + a statement to evaluate as True, False, or Cannot Say.
+True = clearly follows from the passage. False = contradicts the passage. Cannot Say = cannot be determined from the passage alone.
+Balance True/False/Cannot Say across the ${count} questions. Passages must be self-contained — no outside knowledge needed.
+${instructions ? `Instructions: ${instructions}` : ''}
+Return ONLY a valid JSON array:
+[{"passage":"...","statement":"...","correct":0}]
+correct: 0=True, 1=False, 2=Cannot Say`;
+  } else if (isQuotes) {
     prompt = `Generate ${count} mindful, reflective quotes for a wellness app. Mix well-known and lesser-known authors. Themes: presence, patience, perspective, growth, stillness.
 ${instructions ? `Instructions: ${instructions}` : ''}
 Return ONLY a valid JSON array:
@@ -2257,7 +2356,14 @@ Vary which index (0-3) is correct.`;
     const prefix = packId.replace(/-/g,'').substring(0,4).toUpperCase();
     const existing = QB[packId][levelIdx].length;
     let newQs;
-    if (isQuotes) {
+    if (isVerbal) {
+      newQs = qs.map((q,i) => ({
+        id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
+        passage: q.passage,
+        statement: q.statement,
+        correct: q.correct
+      }));
+    } else if (isQuotes) {
       newQs = qs.map((q,i) => ({
         id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
         quote: q.quote,
@@ -2273,6 +2379,7 @@ Vary which index (0-3) is correct.`;
     }
 
     // Show preview
+    const verbalOptsP = ['True','False','Cannot Say'];
     let html = `<div class="preview-wrap">
       <div class="preview-header">
         <span>${newQs.length} ${isQuotes ? 'quotes' : 'questions'} ready</span>
@@ -2280,7 +2387,15 @@ Vary which index (0-3) is correct.`;
       </div>`;
 
     newQs.slice(0,4).forEach(q => {
-      if (isQuotes) {
+      if (isVerbal) {
+        html += `<div class="preview-q">
+          <div class="preview-q-text" style="font-size:11px;font-style:italic;color:var(--text-dim)">${q.passage}</div>
+          <div class="preview-q-text" style="margin-top:4px">Statement: ${q.statement}</div>
+          <div class="preview-answers">
+            ${verbalOptsP.map((opt,i) => `<span class="preview-answer ${i===q.correct?'correct':''}">${opt}</span>`).join('')}
+          </div>
+        </div>`;
+      } else if (isQuotes) {
         html += `<div class="preview-q">
           <div class="preview-q-text" style="font-style:italic">"${q.quote}"</div>
           <div style="font-size:11px;color:var(--text-mid);margin-top:4px;font-family:'DM Mono',monospace">— ${q.author}</div>
@@ -2360,6 +2475,17 @@ function saveQ(qid) {
     const author = (authorEl ? authorEl.value.trim() : '') || 'Unknown';
     if (!quote) { toast("Quote text can't be empty", "error"); return; }
     level[qi] = { id: q.id, quote, author };
+  } else if (pack && pack.special === 'verbal') {
+    const passageEl = document.getElementById('eq-passage');
+    const statementEl = document.getElementById('eq-statement');
+    if (!passageEl) return;
+    const passage = passageEl.value.trim();
+    const statement = statementEl ? statementEl.value.trim() : '';
+    if (!passage) { toast("Passage can't be empty", "error"); return; }
+    if (!statement) { toast("Statement can't be empty", "error"); return; }
+    let correct = 0;
+    document.querySelectorAll('input[name="eq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+    level[qi] = { id: q.id, passage, statement, correct };
   } else {
     const textEl = document.getElementById('eq-text');
     if (!textEl) return;
@@ -2388,7 +2514,7 @@ function startAddQ() {
   state.addingQ = true;
   state.editingQid = null;
   renderMain();
-  setTimeout(() => { const el = document.getElementById('nq-text'); if (el) el.focus(); }, 50);
+  setTimeout(() => { const el = document.getElementById('nq-passage') || document.getElementById('nq-quote') || document.getElementById('nq-text'); if (el) el.focus(); }, 50);
 }
 
 function cancelAddQ() {
@@ -2413,6 +2539,17 @@ function saveNewQ() {
     const author = (authorEl ? authorEl.value.trim() : '') || 'Unknown';
     if (!quote) { toast("Quote text can't be empty", "error"); return; }
     QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), quote, author });
+  } else if (pack && pack.special === 'verbal') {
+    const passageEl = document.getElementById('nq-passage');
+    const statementEl = document.getElementById('nq-statement');
+    if (!passageEl) return;
+    const passage = passageEl.value.trim();
+    const statement = statementEl ? statementEl.value.trim() : '';
+    if (!passage) { toast("Passage can't be empty", "error"); return; }
+    if (!statement) { toast("Statement can't be empty", "error"); return; }
+    let correct = 0;
+    document.querySelectorAll('input[name="nq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+    QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), passage, statement, correct });
   } else {
     const textEl = document.getElementById('nq-text');
     if (!textEl) return;
@@ -2504,6 +2641,7 @@ function exportManifest() {
 
 function buildPackJSON(pack, cat) {
   const isQuotes = pack.special === 'quotes';
+  const isVerbal = pack.special === 'verbal';
   return {
     id: pack.id,
     name: pack.name,
@@ -2519,9 +2657,11 @@ function buildPackJSON(pack, cat) {
         name: lName,
         defaultQuestions: ld.questions,
         defaultTime: ld.time,
-        questions: (QB[pack.id][i] || []).map(q => isQuotes
-          ? { id: q.id, quote: q.quote, author: q.author }
-          : { id: q.id, question: q.q, answers: q.answers, correctIndex: q.correct }
+        questions: (QB[pack.id][i] || []).map(q => isVerbal
+          ? { id: q.id, passage: q.passage, statement: q.statement, correct: q.correct }
+          : isQuotes
+            ? { id: q.id, quote: q.quote, author: q.author }
+            : { id: q.id, question: q.q, answers: q.answers, correctIndex: q.correct }
         )
       };
     })
