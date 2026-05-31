@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.6</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.7</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1112,6 +1112,7 @@ body {
       <div class="header-stat-label">Packs</div>
     </div>
     <button class="btn-header" onclick="openManagePanel()">Manage</button>
+    <button class="btn-header" id="btnBootstrap" onclick="bootstrapAll()" style="border-color:rgba(90,143,175,0.5);color:#5A8FAF">⚡ Bootstrap</button>
     <button class="btn-header" onclick="backup()">Backup ↓</button>
     <button class="btn-header" style="border-color:rgba(196,163,90,0.5)" onclick="document.getElementById('restoreInput').click()">Restore ↑</button>
     <button class="btn-header ai" onclick="openPanel()">✦ Generate</button>
@@ -1244,8 +1245,45 @@ const CATS = {
 };
 
 const PACKS = [
-  // ── SCHOOL / MATHS (algorithmic only) ──
-  { id: "times-tables", cat: "school", name: "Maths: Times Tables", algo: "times-tables", levels: ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"] },
+  // ── SCHOOL / MATHS ──
+  { id: "times-tables",    cat: "school", name: "Maths: Times Tables",           algo: "times-tables", levels: ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"] },
+  { id: "div-multi",       cat: "school", name: "Maths: Division & Multiplication",
+    levels: ["Grade 4","Grade 5","Grade 6"],
+    generationInstructions: "Division and multiplication problems. Grade 4: single-digit × single-digit and simple division. Grade 5: multi-digit × single-digit. Grade 6: multi-digit × multi-digit and long division. Numbers must be small enough to solve mentally in a few seconds. Short, direct question format: e.g. 'What is 7 × 8?'" },
+  { id: "pct-ratio",       cat: "school", name: "Maths: Percentages & Ratio",
+    levels: ["Grade 7","Grade 8","Grade 9"],
+    generationInstructions: "Percentages and ratios. Grade 7: what is X% of Y (simple numbers). Grade 8: percentage increase/decrease. Grade 9: ratio and proportion. One-step problems only. Numbers must be manageable mentally — avoid decimals and large numbers. Short question format." },
+  { id: "science",         cat: "school", name: "Science",
+    levels: ["Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9"],
+    generationInstructions: "General science (biology, chemistry, physics, earth science). Focus on concepts and facts — not calculation. Questions should be answerable from general knowledge at that grade level. Keep vocabulary age-appropriate. Questions must be clear and unambiguous." },
+  { id: "biology",         cat: "school", name: "Biology",
+    levels: ["Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Biology covering cells, genetics, evolution, ecology, and human body systems. Grade 7–9: basic concepts and facts. Grade 10–12: detailed mechanisms, terminology, and processes. Questions should be factual and precise. Avoid ambiguous or opinion-based questions." },
+  { id: "chemistry",       cat: "school", name: "Chemistry",
+    levels: ["Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Chemistry covering atoms, elements, compounds, reactions, and the periodic table. Grade 7–9: element symbols, basic reactions, states of matter. Grade 10–12: reaction types, bonding, and stoichiometry concepts. Focus on conceptual understanding and facts — avoid heavy calculation." },
+  { id: "physics",         cat: "school", name: "Physics",
+    levels: ["Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Physics covering forces, energy, electricity, waves, and motion. Grade 7–9: basic concepts and everyday phenomena. Grade 10–12: precise definitions, units, and laws (Newton, Ohm, etc.). Focus on concepts and qualitative understanding — avoid complex multi-step calculations." },
+  { id: "history",         cat: "school", name: "History",
+    levels: ["Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "European and world history relevant to a European student. Grade 4–6: ancient civilizations and medieval Europe. Grade 7–9: Renaissance, exploration, industrial revolution, World Wars. Grade 10–12: Cold War, European integration, and contemporary events. Questions must be factual and unambiguous. Avoid politically charged framing." },
+  { id: "geography",       cat: "school", name: "Geography",
+    levels: ["Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Physical and human geography with a European focus. Grade 4–6: continents, countries, capitals, and physical features. Grade 7–9: climate, ecosystems, population, and trade. Grade 10–12: geopolitics, urbanization, and environmental issues. Emphasize Europe but include world geography." },
+  { id: "economics",       cat: "school", name: "Economics",
+    levels: ["Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Micro and macroeconomics. Grade 10: basic concepts, supply and demand, market types. Grade 11: national economy, fiscal and monetary policy. Grade 12: international trade, economic systems, and economic history. Questions should be conceptual and factual — no complex calculation." },
+  // ── LANGUAGES ──
+  { id: "lang-french",   cat: "languages", name: "French",   targetLanguage: "French",   nativeLanguage: "English",
+    levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
+    generationInstructions: "Questions in English for English speakers learning French. Test vocabulary (English→French translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (basic greetings, numbers, colours), A2 (everyday topics), B1 (past/future tenses, opinions), B2 (nuance, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
+  { id: "lang-spanish",  cat: "languages", name: "Spanish",  targetLanguage: "Spanish",  nativeLanguage: "English",
+    levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
+    generationInstructions: "Questions in English for English speakers learning Spanish. Test vocabulary (English→Spanish translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (everyday topics, ser/estar basics), B1 (past tenses, reflexive verbs), B2 (subjunctive, idiomatic use), C1–C2 (advanced grammar, literature, register)." },
+  { id: "lang-german",   cat: "languages", name: "German",   targetLanguage: "German",   nativeLanguage: "English",
+    levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
+    generationInstructions: "Questions in English for English speakers learning German. Test vocabulary (English→German translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (articles, plurals, everyday phrases), B1 (cases, modal verbs, past tense), B2 (Konjunktiv, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
   // ── SPECIALS ──
   { id: "idiot-question", cat: "specials", name: "The Idiot Question", special: "binary",  levels: ["Pool"] },
   { id: "bluff",          cat: "specials", name: "Bluff",              special: "bluff",   levels: ["Easy","Medium","Hard"] },
@@ -1383,7 +1421,7 @@ let state = {
   packId: null,
   levelIdx: 0,
   search: "",
-  genCount: 10,
+  genCount: 50,
   panelOpen: false,
   editingQid: null,
   addingQ: false,
@@ -1965,6 +2003,45 @@ async function generateAllLevels() {
   toast("Generated all levels ✓", "success");
 }
 
+async function bootstrapAll() {
+  const apiKey = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem('toll_api_key') || '';
+  if (!apiKey || !apiKey.startsWith('sk-')) { toast("Set your API key in ✦ Generate first", "error"); return; }
+
+  const targets = [];
+  PACKS.forEach(pack => {
+    if (pack.algo || pack.special) return;
+    pack.levels.forEach((name, i) => {
+      if (isLevelNA(pack.id, i)) return;
+      if ((QB[pack.id] && QB[pack.id][i] && QB[pack.id][i].length > 0)) return;
+      targets.push({ pack, levelIdx: i, name });
+    });
+  });
+
+  if (targets.length === 0) { toast("No empty levels found — all packs already have questions", "success"); return; }
+
+  const btn = document.getElementById('btnBootstrap');
+  const savedCount = state.genCount;
+  state.genCount = 50;
+
+  for (let j = 0; j < targets.length; j++) {
+    const { pack, levelIdx, name } = targets[j];
+    if (btn) btn.textContent = `⚡ ${pack.name} · ${name} (${j+1}/${targets.length})`;
+    try {
+      await generateAIForLevel(pack, levelIdx, apiKey);
+      save();
+    } catch(e) {
+      toast(`Error on "${pack.name} · ${name}": ${e.message}`, "error");
+    }
+  }
+
+  state.genCount = savedCount;
+  if (btn) btn.textContent = '⚡ Bootstrap';
+  save();
+  renderSidebar();
+  renderMain();
+  toast(`Bootstrap complete — ${targets.length} levels generated ✓`, "success");
+}
+
 async function generateAIForLevel(pack, levelIdx, apiKey) {
   const level = pack.levels[levelIdx];
   const instructions = pack.generationInstructions || '';
@@ -2006,7 +2083,7 @@ ${langCtx}
 ${instructions ? `Instructions: ${instructions}` : ''}
 Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
-${pack.cat === 'school' ? 'Grade reference (Swedish system): Grade 1 = age 7 (very basic), Grade 3 = age 9, Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the specified grade.' : ''}
+${pack.cat === 'school' ? 'Grade reference: Grade 1 = age 7 (very basic), Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the grade. IMPORTANT: questions must be quick to evaluate — a student should read and answer in under 10 seconds. Keep questions short and direct. No multi-step problems.' : ''}
 IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
 Return ONLY a valid JSON array, no markdown:
 [{"q":"question","answers":["a","b","c","d"],"correct":0}]
@@ -2062,7 +2139,7 @@ Vary which index (0-3) is correct.`;
 // ═══════════════════════════════════════════════════
 
 function adj(d) {
-  state.genCount = Math.max(5, Math.min(50, state.genCount + d));
+  state.genCount = Math.max(5, Math.min(100, state.genCount + d));
   document.getElementById('countVal').textContent = state.genCount;
 }
 
@@ -2120,7 +2197,7 @@ ${langCtx}
 ${instructions ? `Instructions: ${instructions}` : ''}
 Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
-${pack.cat === 'school' ? 'Grade reference (Swedish system): Grade 1 = age 7 (very basic), Grade 3 = age 9, Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the specified grade.' : ''}
+${pack.cat === 'school' ? 'Grade reference: Grade 1 = age 7 (very basic), Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the grade. IMPORTANT: questions must be quick to evaluate — a student should read and answer in under 10 seconds. Keep questions short and direct. No multi-step problems.' : ''}
 IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
 Return ONLY a valid JSON array, no markdown:
 [{"q":"question","answers":["a","b","c","d"],"correct":0}]
