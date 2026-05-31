@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.3</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.5</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1244,40 +1244,73 @@ const CATS = {
 };
 
 const PACKS = [
-  // ── SCHOOL / MATHS ──
-  { id: "times-tables",       cat: "school", name: "Maths: Times Tables",          algo: "times-tables", levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3","Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3"] },
-  { id: "addition-sub",       cat: "school", name: "Maths: Addition & Subtraction",                       levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3"] },
-  { id: "division-multi",     cat: "school", name: "Maths: Division & Multiplication", levels: ["Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3"] },
-  { id: "percentages",        cat: "school", name: "Maths: Percentages & Ratio",    levels: ["Grade 7–9 · Y1","Grade 7–9 · Y2","Grade 7–9 · Y3"] },
-  { id: "mental-arithmetic",  cat: "school", name: "Maths: Mental Arithmetic",      levels: ["Grade 7–9 · Y1","Grade 7–9 · Y2","HS+"] },
-  // ── SCHOOL / SUBJECTS ──
-  { id: "english-school",     cat: "school", name: "English",                       levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3","Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3","Grade 7–9 · Y1","Grade 7–9 · Y2","Grade 7–9 · Y3"] },
-  { id: "swedish-school",     cat: "school", name: "Swedish",                       levels: ["Grade 1–3 · Y1","Grade 1–3 · Y2","Grade 1–3 · Y3","Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3"] },
-  { id: "science",            cat: "school", name: "Science",                       levels: ["Grade 4–6 · Y1","Grade 4–6 · Y2","Grade 4–6 · Y3","Grade 7–9 · Y1","Grade 7–9 · Y2","Grade 7–9 · Y3"] },
-  { id: "history-school",     cat: "school", name: "History",                       levels: ["Grade 4–6 · Y1","Grade 7–9 · Y1","Grade 7–9 · Y2","HS+"] },
-  { id: "economics",          cat: "school", name: "Economics",                     levels: ["HS+ · Y1","HS+ · Y2","HS+ · Y3"] },
-  // ── LANGUAGES ──
-  { id: "lang-english",   cat: "languages", name: "English",  levels: ["Easy","Medium","Hard"] },
-  { id: "lang-spanish",   cat: "languages", name: "Spanish",  levels: ["Easy","Medium","Hard"] },
-  { id: "lang-french",    cat: "languages", name: "French",   levels: ["Easy","Medium","Hard"] },
-  { id: "lang-german",    cat: "languages", name: "German",   levels: ["Easy","Medium","Hard"] },
-  // ── POPULAR ──
-  { id: "capital-cities",   cat: "popular", name: "Capital Cities",   levels: ["Easy","Medium","Hard"] },
-  { id: "world-flags",      cat: "popular", name: "World Flags",      levels: ["Easy","Medium","Hard"] },
-  { id: "football-facts",   cat: "popular", name: "Football Facts",   levels: ["Easy","Medium","Hard"] },
-  { id: "general-knowledge",cat: "popular", name: "General Knowledge",levels: ["Easy","Medium","Hard"] },
-  { id: "famous-quotes",    cat: "popular", name: "Famous Quotes",    levels: ["Easy","Medium","Hard"] },
-  { id: "space-astronomy",  cat: "popular", name: "Space & Astronomy",levels: ["Easy","Medium","Hard"] },
-  // ── IQ ──
-  { id: "number-sequences", cat: "iq", name: "Number Sequences", levels: ["Easy","Medium","Hard"] },
-  { id: "analogies",        cat: "iq", name: "Analogies",        levels: ["Easy","Medium","Hard"] },
-  { id: "odd-one-out",      cat: "iq", name: "Odd One Out",      levels: ["Easy","Medium","Hard"] },
-  { id: "logic-puzzles",    cat: "iq", name: "Logic Puzzles",    levels: ["Easy","Medium","Hard"] },
+  // ── SCHOOL / MATHS (algorithmic only) ──
+  { id: "times-tables", cat: "school", name: "Maths: Times Tables", algo: "times-tables", levels: ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"] },
   // ── SPECIALS ──
-  { id: "idiot-question",   cat: "specials", name: "The Idiot Question", special: "binary",  levels: ["Pool"] },
-  { id: "bluff",            cat: "specials", name: "Bluff",              special: "bluff",   levels: ["Easy","Medium","Hard"] },
-  { id: "mindful-quotes",   cat: "specials", name: "Mindful Quotes",     special: "quotes",  icon: "🌿", levels: ["Pool"] },
+  { id: "idiot-question", cat: "specials", name: "The Idiot Question", special: "binary",  levels: ["Pool"] },
+  { id: "bluff",          cat: "specials", name: "Bluff",              special: "bluff",   levels: ["Easy","Medium","Hard"] },
+  { id: "mindful-quotes", cat: "specials", name: "Mindful Quotes",     special: "quotes",  icon: "🌿", levels: ["Pool"] },
 ];
+
+const PACK_TEMPLATES = {
+  school: [
+    { name: "Maths: Addition & Subtraction" },
+    { name: "Maths: Division & Multiplication" },
+    { name: "Maths: Percentages & Ratio" },
+    { name: "Maths: Mental Arithmetic" },
+    { name: "Maths: Algebra" },
+    { name: "Maths: Geometry" },
+    { name: "English" },
+    { name: "Swedish" },
+    { name: "Science" },
+    { name: "Biology" },
+    { name: "Chemistry" },
+    { name: "Physics" },
+    { name: "History" },
+    { name: "Geography" },
+    { name: "Social Studies" },
+    { name: "Economics" },
+    { name: "Art & Music" },
+    { name: "Sports & PE" },
+  ],
+  languages: [
+    { name: "English",          targetLanguage: "English" },
+    { name: "Spanish",          targetLanguage: "Spanish" },
+    { name: "French",           targetLanguage: "French" },
+    { name: "German",           targetLanguage: "German" },
+    { name: "Italian",          targetLanguage: "Italian" },
+    { name: "Portuguese",       targetLanguage: "Portuguese" },
+    { name: "Mandarin Chinese", targetLanguage: "Mandarin Chinese" },
+    { name: "Japanese",         targetLanguage: "Japanese" },
+    { name: "Arabic",           targetLanguage: "Arabic" },
+    { name: "Norwegian",        targetLanguage: "Norwegian" },
+    { name: "Finnish",          targetLanguage: "Finnish" },
+  ],
+  popular: [
+    { name: "Capital Cities" },
+    { name: "World Flags" },
+    { name: "Football Facts" },
+    { name: "General Knowledge" },
+    { name: "Famous Quotes" },
+    { name: "Space & Astronomy" },
+    { name: "Movies & TV" },
+    { name: "Music" },
+    { name: "Food & Cooking" },
+    { name: "Science & Nature" },
+    { name: "Art & Literature" },
+    { name: "History" },
+    { name: "Sport" },
+  ],
+  iq: [
+    { name: "Number Sequences" },
+    { name: "Analogies" },
+    { name: "Odd One Out" },
+    { name: "Logic Puzzles" },
+    { name: "Pattern Recognition" },
+    { name: "Spatial Reasoning" },
+    { name: "Word Problems" },
+  ],
+};
 
 // Question bank: packId → levelIndex → [questions]
 let QB = {};
@@ -1288,29 +1321,12 @@ PACKS.forEach(p => {
 });
 
 // Seed some sample questions
-QB["capital-cities"][0] = [
-  { id:"cc001", q:"What is the capital of France?",    answers:["London","Paris","Berlin","Madrid"],     correct:1 },
-  { id:"cc002", q:"What is the capital of Japan?",     answers:["Beijing","Seoul","Tokyo","Bangkok"],    correct:2 },
-  { id:"cc003", q:"What is the capital of Australia?", answers:["Sydney","Melbourne","Brisbane","Canberra"], correct:3 },
-  { id:"cc004", q:"What is the capital of Brazil?",    answers:["São Paulo","Rio de Janeiro","Brasília","Salvador"], correct:2 },
-  { id:"cc005", q:"What is the capital of Canada?",    answers:["Toronto","Vancouver","Ottawa","Montreal"], correct:2 },
-];
-QB["football-facts"][0] = [
-  { id:"ff001", q:"How many players are on a football team?",       answers:["9","10","11","12"],        correct:2 },
-  { id:"ff002", q:"Which country has won the most World Cups?",     answers:["Germany","Argentina","Brazil","Italy"], correct:2 },
-  { id:"ff003", q:"How long is a standard football match?",         answers:["80 min","90 min","100 min","120 min"], correct:1 },
-];
 QB["idiot-question"][0] = [
   { id:"iq001", q:"Is 'Nemas problemas' correct Spanish?",                        answers:["Yes","No"],           correct:1 },
   { id:"iq002", q:"Does the Christian calendar count from Jesus's birth or death?", answers:["Birth","Death"],    correct:0 },
   { id:"iq003", q:"Is it spelled 'Acoustic' or 'Accoustic'?",                     answers:["Acoustic","Accoustic"], correct:0 },
   { id:"iq004", q:"Did Vikings wear horned helmets in battle?",                   answers:["Yes","No"],           correct:1 },
   { id:"iq005", q:"Is a tomato botanically a fruit or a vegetable?",              answers:["Fruit","Vegetable"],  correct:0 },
-];
-QB["number-sequences"][0] = [
-  { id:"ns001", q:"What comes next?\n2, 4, 8, 16, ?",   answers:["24","28","32","36"], correct:2 },
-  { id:"ns002", q:"What comes next?\n1, 3, 6, 10, ?",   answers:["13","14","15","16"], correct:2 },
-  { id:"ns003", q:"What comes next?\n5, 10, 20, 40, ?", answers:["60","70","80","90"], correct:2 },
 ];
 QB["bluff"][0] = [
   { id:"bl001", q:"About ABBA — spot the lie:\nA) ABBA formed in Stockholm in 1972\nB) ABBA stands for the first letters of each member's name\nC) ABBA won Eurovision with 'Waterloo' in 1973", answers:["A is false","B is false","C is false"], correct:2 },
@@ -1325,7 +1341,7 @@ QB["mindful-quotes"][0] = [
 // ═══════════════════════════════════════════════════
 
 const LEVEL_PRESETS = {
-  school:    ["Grade 1-3 · L1","Grade 1-3 · L2","Grade 1-3 · L3","Grade 4-6 · L1","Grade 4-6 · L2","Grade 4-6 · L3","Grade 7-9 · L1","Grade 7-9 · L2","Grade 7-9 · L3","HS+ · L1","HS+ · L2","HS+ · L3"],
+  school:    ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
   popular:   ["Easy","Medium","Hard","Expert","Legendary"],
   iq:        ["Easy","Medium","Hard","Expert","Legendary"],
   languages: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
@@ -1984,6 +2000,7 @@ ${langCtx}
 ${instructions ? `Instructions: ${instructions}` : ''}
 Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
+${pack.cat === 'school' ? 'Grade reference (Swedish system): Grade 1 = age 7 (very basic), Grade 3 = age 9, Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the specified grade.' : ''}
 IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
 Return ONLY a valid JSON array, no markdown:
 [{"q":"question","answers":["a","b","c","d"],"correct":0}]
@@ -2097,6 +2114,7 @@ ${langCtx}
 ${instructions ? `Instructions: ${instructions}` : ''}
 Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
+${pack.cat === 'school' ? 'Grade reference (Swedish system): Grade 1 = age 7 (very basic), Grade 3 = age 9, Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the specified grade.' : ''}
 IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
 Return ONLY a valid JSON array, no markdown:
 [{"q":"question","answers":["a","b","c","d"],"correct":0}]
@@ -2477,6 +2495,13 @@ function renderManagePanel() {
           <option value="specials">Specials ⭐</option>
         </select>
       </div>
+      <div class="field">
+        <label>Start from template <span style="color:var(--text-dim);font-weight:400">(optional)</span></label>
+        <select id="npTemplate" onchange="manageApplyTemplate()">
+          <option value="">— blank —</option>
+          ${(PACK_TEMPLATES['popular'] || []).map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}
+        </select>
+      </div>
       <div id="npLangFields" style="display:none">
         <div class="form-row">
           <div class="field" style="flex:1">
@@ -2514,6 +2539,27 @@ function manageUpdateLevels() {
   document.getElementById('npLevels').innerHTML = levels.map(l => `<span class="level-pill">${l}</span>`).join('');
   const langFields = document.getElementById('npLangFields');
   if (langFields) langFields.style.display = cat === 'languages' ? 'block' : 'none';
+  const tplSelect = document.getElementById('npTemplate');
+  if (tplSelect) {
+    const templates = PACK_TEMPLATES[cat] || [];
+    tplSelect.innerHTML = `<option value="">— blank —</option>` +
+      templates.map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('');
+    tplSelect.value = '';
+  }
+  document.getElementById('npName').value = '';
+  const tl = document.getElementById('npTargetLang'); if (tl) tl.value = '';
+}
+
+function manageApplyTemplate() {
+  const cat = document.getElementById('npCat').value;
+  const tplName = document.getElementById('npTemplate').value;
+  if (!tplName) { document.getElementById('npName').value = ''; return; }
+  document.getElementById('npName').value = tplName;
+  if (cat === 'languages') {
+    const tpl = (PACK_TEMPLATES.languages || []).find(t => t.name === tplName);
+    const tl = document.getElementById('npTargetLang');
+    if (tl && tpl && tpl.targetLanguage) tl.value = tpl.targetLanguage;
+  }
 }
 
 function createPack() {
