@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.10</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.11</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1296,6 +1296,19 @@ const PACKS = [
   { id: "german-en",   cat: "languages", name: "German / English",   targetLanguage: "German",   nativeLanguage: "English",
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning German. Test vocabulary (English→German translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (articles, plurals, everyday phrases), B1 (cases, modal verbs, past tense), B2 (Konjunktiv, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
+  // ── IQ ──
+  { id: "iq-number-seq",  cat: "iq", name: "Number Sequences",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "Find the next number in a sequence. Easy: simple arithmetic progressions (×2, +5). Medium: geometric or mixed rules. Hard: multi-rule patterns or combined operations. Expert: complex multi-step patterns, Fibonacci-like or polynomial. Always provide exactly 4 plausible answer choices — wrong answers should be nearby values that result from common mistakes. Format: 'What comes next? 2, 4, 8, 16, ?'" },
+  { id: "iq-odd-one-out", cat: "iq", name: "Odd One Out",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "Which item doesn't belong? Easy: obvious category mismatches (e.g. cat/dog/table/bird). Medium: subtler distinctions (e.g. properties, number theory). Hard: items that share multiple traits, only one subtle rule separates the odd one. Expert: abstract or multi-layered reasoning required. There must be one clear correct answer. Answer choices are the 4 items themselves — correct is the odd one out." },
+  { id: "iq-analogies",   cat: "iq", name: "Analogies",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "A is to B as C is to ? Easy: concrete, everyday relationships (hot→cold, puppy→dog). Medium: functional or part-whole relationships. Hard: abstract or domain-specific (science, language, math). Expert: multi-layered or lateral relationships. Format: 'X is to Y as Z is to?' with 4 answer choices. One clearly correct, others plausible but wrong." },
+  { id: "iq-logic",       cat: "iq", name: "Logic Puzzles",
+    levels: ["Easy","Medium","Hard","Expert"],
+    generationInstructions: "Short deductive reasoning puzzles. Easy: simple if/then or syllogisms (All A are B, X is A, therefore?). Medium: 2-step deductions, truth/lie scenarios. Hard: multi-premise reasoning, elimination puzzles. Expert: complex multi-step logic chains. CRITICAL: entire question must fit in 90 characters. Keep premises ultra-short. 4 answer choices. One unambiguously correct answer." },
   // ── SPECIALS ──
   { id: "idiot-question", cat: "specials", name: "The Idiot Question", special: "binary",  levels: ["Pool"] },
   { id: "bluff",          cat: "specials", name: "Bluff",              special: "bluff",   levels: ["Easy","Medium","Hard"] },
