@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.8</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-05-31.9</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1247,12 +1247,24 @@ const CATS = {
 const PACKS = [
   // ── SCHOOL / MATHS ──
   { id: "times-tables",    cat: "school", name: "Maths: Times Tables",           algo: "times-tables", levels: ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"] },
+  { id: "maths-add-sub",   cat: "school", name: "Maths: Addition & Subtraction",
+    levels: ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"],
+    generationInstructions: "Pure arithmetic only — no variables, no algebra. Grade 1: adding/subtracting within 10. Grade 2: within 20. Grade 3: within 100 with carrying/borrowing. Grade 4: 3-digit numbers. Grade 5: multi-digit with decimals. Grade 6: negative numbers and mixed operations. All problems solvable mentally in a few seconds. Format: 'What is X + Y?' or 'What is X − Y?'" },
   { id: "div-multi",       cat: "school", name: "Maths: Division & Multiplication",
-    levels: ["Grade 4","Grade 5","Grade 6"],
-    generationInstructions: "Division and multiplication problems. Grade 4: single-digit × single-digit and simple division. Grade 5: multi-digit × single-digit. Grade 6: multi-digit × multi-digit and long division. Numbers must be small enough to solve mentally in a few seconds. Short, direct question format: e.g. 'What is 7 × 8?'" },
+    levels: ["Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9"],
+    generationInstructions: "Pure number problems only — no algebra. Grade 4: single-digit × single-digit and simple division. Grade 5: multi-digit × single-digit. Grade 6: multi-digit × multi-digit and long division. Grade 7: factors, multiples, and divisibility rules. Grade 8: order of operations (BODMAS). Grade 9: powers, roots, and prime factorisation. All solvable quickly. Format: 'What is X × Y?' or 'What is X ÷ Y?'" },
   { id: "pct-ratio",       cat: "school", name: "Maths: Percentages & Ratio",
-    levels: ["Grade 7","Grade 8","Grade 9"],
-    generationInstructions: "Percentages and ratios. Grade 7: what is X% of Y (simple numbers). Grade 8: percentage increase/decrease. Grade 9: ratio and proportion. One-step problems only. Numbers must be manageable mentally — avoid decimals and large numbers. Short question format." },
+    levels: ["Grade 6","Grade 7","Grade 8","Grade 9"],
+    generationInstructions: "Grade 6: simple percentages of a number (50%, 25%, 10%). Grade 7: percentage of any amount, convert between fractions/decimals/percentages. Grade 8: percentage increase and decrease, finding the original value. Grade 9: ratio and proportion, direct and inverse proportion. One-step problems only — numbers manageable without a calculator." },
+  { id: "maths-geometry",  cat: "school", name: "Maths: Geometry",
+    levels: ["Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Grade 4–6: names and properties of 2D shapes, perimeter, area of rectangles and triangles. Grade 7–9: area and volume of circles, cylinders, and composite shapes; angles and parallel lines. Grade 10–12: trigonometry (sin/cos/tan), coordinate geometry, vectors. Focus on conceptual questions and fact recall — not long calculations." },
+  { id: "maths-algebra",   cat: "school", name: "Maths: Algebra",
+    levels: ["Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Grade 7–8: solving simple linear equations, substitution, expanding brackets. Grade 9–10: simultaneous equations, quadratics, factorisation. Grade 11–12: functions, polynomials, exponentials, and logarithms. Focus on concepts and short problems — avoid lengthy multi-step computations. Questions should test understanding of rules and methods." },
+  { id: "maths-analysis",  cat: "school", name: "Maths: Analysis",
+    levels: ["Grade 10","Grade 11","Grade 12"],
+    generationInstructions: "Calculus and mathematical analysis. Grade 10: limits and introduction to derivatives, basic differentiation rules (power rule, constant rule). Grade 11: integration, area under curves, chain rule and product rule. Grade 12: advanced differentiation and integration techniques, introduction to differential equations. Focus on concepts and rules — short application questions, not long derivations." },
   { id: "science",         cat: "school", name: "Science",
     levels: ["Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9"],
     generationInstructions: "General science (biology, chemistry, physics, earth science). Focus on concepts and facts — not calculation. Questions should be answerable from general knowledge at that grade level. Keep vocabulary age-appropriate. Questions must be clear and unambiguous." },
@@ -1275,13 +1287,13 @@ const PACKS = [
     levels: ["Grade 10","Grade 11","Grade 12"],
     generationInstructions: "Micro and macroeconomics. Grade 10: basic concepts, supply and demand, market types. Grade 11: national economy, fiscal and monetary policy. Grade 12: international trade, economic systems, and economic history. Questions should be conceptual and factual — no complex calculation." },
   // ── LANGUAGES ──
-  { id: "french-en",   cat: "languages", name: "French",   targetLanguage: "French",   nativeLanguage: "English",
+  { id: "french-en",   cat: "languages", name: "French / English",   targetLanguage: "French",   nativeLanguage: "English",
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning French. Test vocabulary (English→French translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (basic greetings, numbers, colours), A2 (everyday topics), B1 (past/future tenses, opinions), B2 (nuance, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
-  { id: "spanish-en",  cat: "languages", name: "Spanish",  targetLanguage: "Spanish",  nativeLanguage: "English",
+  { id: "spanish-en",  cat: "languages", name: "Spanish / English",  targetLanguage: "Spanish",  nativeLanguage: "English",
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning Spanish. Test vocabulary (English→Spanish translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (everyday topics, ser/estar basics), B1 (past tenses, reflexive verbs), B2 (subjunctive, idiomatic use), C1–C2 (advanced grammar, literature, register)." },
-  { id: "german-en",   cat: "languages", name: "German",   targetLanguage: "German",   nativeLanguage: "English",
+  { id: "german-en",   cat: "languages", name: "German / English",   targetLanguage: "German",   nativeLanguage: "English",
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning German. Test vocabulary (English→German translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (articles, plurals, everyday phrases), B1 (cases, modal verbs, past tense), B2 (Konjunktiv, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
   // ── SPECIALS ──
