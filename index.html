@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.4</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.5</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2913,28 +2913,33 @@ function renderVetReport() {
 }
 
 function applyVetFix(idx) {
-  const issue = vetIssues[idx];
-  if (!issue) return;
-  const level = QB[issue.packId] && QB[issue.packId][issue.levelIdx];
-  const q = level && level.find(q => q.id === issue.id);
-  if (!q) { toast("Question not found", "error"); return; }
-  q.correct = parseInt(issue.fixedCorrect, 10);
-  save(); renderSidebar(); renderMain();
-  toast(`Answer fixed → option ${q.correct + 1} ✓`, "success");
-  vetIssues.splice(idx, 1);
-  renderVetReport();
+  try {
+    const issue = vetIssues[idx];
+    if (!issue) { toast(`No issue at index ${idx}`, "error"); return; }
+    const level = QB[issue.packId] && QB[issue.packId][issue.levelIdx];
+    if (!level) { toast(`Level not found: ${issue.packId}[${issue.levelIdx}]`, "error"); return; }
+    const q = level.find(qq => qq.id === issue.id);
+    if (!q) { toast(`Question ${issue.id} not found in level`, "error"); return; }
+    q.correct = parseInt(issue.fixedCorrect, 10);
+    save(); renderSidebar(); renderMain();
+    toast(`Answer fixed → option ${q.correct + 1} ✓`, "success");
+    vetIssues.splice(idx, 1);
+    renderVetReport();
+  } catch(e) { toast("Fix error: " + e.message, "error"); }
 }
 
 function applyVetRemove(idx) {
-  const issue = vetIssues[idx];
-  if (!issue) return;
-  const level = QB[issue.packId] && QB[issue.packId][issue.levelIdx];
-  if (!level) { toast("Question not found", "error"); return; }
-  QB[issue.packId][issue.levelIdx] = level.filter(q => q.id !== issue.id);
-  save(); renderSidebar(); renderMain();
-  toast("Question removed ✓", "success");
-  vetIssues.splice(idx, 1);
-  renderVetReport();
+  try {
+    const issue = vetIssues[idx];
+    if (!issue) { toast(`No issue at index ${idx}`, "error"); return; }
+    const level = QB[issue.packId] && QB[issue.packId][issue.levelIdx];
+    if (!level) { toast(`Level not found: ${issue.packId}[${issue.levelIdx}]`, "error"); return; }
+    QB[issue.packId][issue.levelIdx] = level.filter(qq => qq.id !== issue.id);
+    save(); renderSidebar(); renderMain();
+    toast("Question removed ✓", "success");
+    vetIssues.splice(idx, 1);
+    renderVetReport();
+  } catch(e) { toast("Remove error: " + e.message, "error"); }
 }
 
 function dismissVetIssue(idx) {
