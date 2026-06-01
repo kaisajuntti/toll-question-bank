@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.2</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.3</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2810,7 +2810,7 @@ async function runVetting() {
         issues.forEach(issue => {
           if (issue.issue === 'wrong_answer' && issue.fixedCorrect !== undefined) {
             const q = QB[pack.id][levelIdx].find(q => q.id === issue.id);
-            if (q) { q.correct = issue.fixedCorrect; fixed++; }
+            if (q) { q.correct = parseInt(issue.fixedCorrect, 10); fixed++; }
           } else {
             QB[pack.id][levelIdx] = QB[pack.id][levelIdx].filter(q => q.id !== issue.id);
             removed++;
@@ -2883,8 +2883,12 @@ function renderVetReport() {
 function applyVetFix(idx) {
   const issue = vetIssues[idx];
   if (!issue) return;
-  const q = QB[issue.packId][issue.levelIdx] && QB[issue.packId][issue.levelIdx].find(q => q.id === issue.id);
-  if (q) { q.correct = issue.fixedCorrect; save(); renderSidebar(); renderMain(); }
+  const level = QB[issue.packId] && QB[issue.packId][issue.levelIdx];
+  const q = level && level.find(q => q.id === issue.id);
+  if (!q) { toast("Question not found", "error"); return; }
+  q.correct = parseInt(issue.fixedCorrect, 10);
+  save(); renderSidebar(); renderMain();
+  toast(`Answer fixed → option ${q.correct + 1} ✓`, "success");
   vetIssues.splice(idx, 1);
   renderVetReport();
 }
@@ -2956,7 +2960,7 @@ async function vetPending() {
     // Apply wrong_answer fixes to pending
     issues.filter(i => i.issue === 'wrong_answer' && i.fixedCorrect !== undefined).forEach(i => {
       const q = qs.find(q => q.id === i.id);
-      if (q) q.correct = i.fixedCorrect;
+      if (q) q.correct = parseInt(i.fixedCorrect, 10);
     });
 
     const issueColors = { wrong_answer: '#5A8FAF', ambiguous: '#C4A35A', broken: '#C45A5A', duplicate: '#8F5AAF' };
