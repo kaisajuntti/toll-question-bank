@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.6</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.7</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2993,7 +2993,7 @@ Questions: ${JSON.stringify(formatted)}`;
     const text = data.content.map(c => c.text||"").join("");
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) return [];
-    return JSON.parse(match[0]);
+    try { return JSON.parse(match[0]); } catch(e) { return []; }
   } catch(e) {
     clearTimeout(timeoutId);
     if (e.name === 'AbortError') throw new Error('Timed out after 45s — try vetting fewer levels at once');
@@ -3340,11 +3340,11 @@ function restore(input) {
 // TOAST
 // ═══════════════════════════════════════════════════
 
-function toast(msg, type) {
+function toast(msg, type, duration) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = `toast ${type} show`;
-  setTimeout(() => el.classList.remove('show'), 2500);
+  setTimeout(() => el.classList.remove('show'), duration || (type === 'error' ? 5000 : 2500));
 }
 
 // ═══════════════════════════════════════════════════
