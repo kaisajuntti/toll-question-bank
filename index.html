@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.5</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.6</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2705,6 +2705,7 @@ function downloadJSON(filename, data) {
 
 let vetRunning = false;
 let vetIssues = [];
+let vetAbortController = null;
 
 function openVetPanel() {
   renderVetSetup();
@@ -2714,6 +2715,13 @@ function openVetPanel() {
 function closeVetPanel() {
   document.getElementById('vetPanel').classList.remove('open');
   vetRunning = false;
+  if (vetAbortController) { vetAbortController.abort(); vetAbortController = null; }
+}
+
+function cancelVetting() {
+  vetRunning = false;
+  if (vetAbortController) { vetAbortController.abort(); vetAbortController = null; }
+  renderVetSetup();
 }
 
 function renderVetSetup() {
@@ -2801,8 +2809,9 @@ async function runVetting() {
     const { pack, levelIdx, levelName } = targets[j];
     body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-dim)">
       <div style="font-size:24px;margin-bottom:16px">🔍</div>
-      <div style="font-size:13px">${pack.name} · ${levelName} (${j+1}/${targets.length})</div>
+      <div style="font-size:13px;color:var(--text)">${pack.name} · ${levelName} (${j+1}/${targets.length})</div>
       <div style="font-size:11px;margin-top:8px;color:var(--text-dim)">Vetting ${QB[pack.id][levelIdx].length} questions...</div>
+      <button class="q-btn" onclick="cancelVetting()" style="margin-top:20px;padding:5px 16px">Cancel</button>
     </div>`;
     try {
       const issues = await vetQuestions(pack, levelName, QB[pack.id][levelIdx], apiKey);
@@ -2969,17 +2978,27 @@ Return ONLY issues as JSON, [] if none: [{"id":"...","issue":"wrong_answer|ambig
 Pack: ${pack.name}, Level: ${levelName}
 Questions: ${JSON.stringify(formatted)}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type":"application/json","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","x-api-key":apiKey },
-    body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:2000, messages:[{ role:"user", content:prompt }] })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  const text = data.content.map(c => c.text||"").join("");
-  const match = text.match(/\[[\s\S]*\]/);
-  if (!match) return [];
-  return JSON.parse(match[0]);
+  vetAbortController = new AbortController();
+  const timeoutId = setTimeout(() => vetAbortController.abort(), 45000);
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type":"application/json","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","x-api-key":apiKey },
+      body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:2000, messages:[{ role:"user", content:prompt }] }),
+      signal: vetAbortController.signal
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content.map(c => c.text||"").join("");
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) return [];
+    return JSON.parse(match[0]);
+  } catch(e) {
+    clearTimeout(timeoutId);
+    if (e.name === 'AbortError') throw new Error('Timed out after 45s — try vetting fewer levels at once');
+    throw e;
+  }
 }
 
 async function vetPending() {
