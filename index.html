@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.3</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.4</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -2855,18 +2855,50 @@ function renderVetReport() {
     <div class="manage-section-title">${vetIssues.length} issue${vetIssues.length!==1?'s':''} found</div>`;
   vetIssues.forEach((issue, idx) => {
     const pack = PACKS.find(p => p.id === issue.packId);
-    const q = pack && QB[issue.packId][issue.levelIdx] && QB[issue.packId][issue.levelIdx].find(q => q.id === issue.id);
+    const level = pack && QB[issue.packId] && QB[issue.packId][issue.levelIdx];
+    const q = level && level.find(q => q.id === issue.id);
     if (!q) return;
-    const qText = q.q || q.passage || q.quote || '';
     const color = issueColors[issue.issue] || 'var(--text-dim)';
+    const isVerbal = pack.special === 'verbal';
+    const verbalOpts = ['True','False','Cannot Say'];
+
+    let qHtml = '';
+    if (isVerbal) {
+      qHtml += `<div style="font-size:12px;color:var(--text-dim);font-style:italic;background:var(--surface2);padding:8px;border-radius:4px;margin-bottom:6px;line-height:1.5">${esc(q.passage)}</div>`;
+      qHtml += `<div style="font-size:13px;color:var(--text);margin-bottom:6px">Statement: ${esc(q.statement)}</div>`;
+      qHtml += `<div style="display:flex;gap:6px;flex-wrap:wrap">`;
+      verbalOpts.forEach((opt,i) => {
+        const isCurrent = i === q.correct;
+        const isFix = issue.issue === 'wrong_answer' && parseInt(issue.fixedCorrect,10) === i;
+        qHtml += `<span style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid ${isCurrent?'rgba(90,175,122,0.5)':'var(--border)'};color:${isCurrent?'var(--green)':'var(--text-dim)'}${isFix?';outline:2px solid #5A8FAF':''}">${opt}${isCurrent?' ✓':''}${isFix?' → fix':''}</span>`;
+      });
+      qHtml += `</div>`;
+    } else if (q.q) {
+      qHtml += `<div style="font-size:13px;color:var(--text);line-height:1.5;margin-bottom:6px">${esc(q.q)}</div>`;
+      if (q.answers) {
+        qHtml += `<div style="display:flex;flex-direction:column;gap:4px">`;
+        q.answers.forEach((a,i) => {
+          const isCurrent = i === q.correct;
+          const isFix = issue.issue === 'wrong_answer' && parseInt(issue.fixedCorrect,10) === i;
+          qHtml += `<div style="font-size:12px;padding:4px 8px;border-radius:4px;border:1px solid ${isCurrent?'rgba(90,175,122,0.5)':'var(--border)'};color:${isCurrent?'var(--green)':'var(--text-dim)'}${isFix?';border-color:#5A8FAF;color:#5A8FAF':''}">
+            ${i+1}. ${esc(a)}${isCurrent?' ✓':''}${isFix?' ← suggested fix':''}
+          </div>`;
+        });
+        qHtml += `</div>`;
+      }
+    } else if (q.quote) {
+      qHtml += `<div style="font-size:13px;font-style:italic;color:var(--text)">"${esc(q.quote)}"</div>`;
+      qHtml += `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">— ${esc(q.author)}</div>`;
+    }
+
     html += `<div class="pack-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px">
-      <div style="display:flex;width:100%;align-items:center;gap:8px">
+      <div style="display:flex;width:100%;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:10px;font-weight:600;padding:2px 7px;border:1px solid ${color}33;color:${color};border-radius:4px;text-transform:uppercase">${issue.issue.replace('_',' ')}</span>
-        <span style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace">${issue.packName} · ${issue.levelName}</span>
-        <span style="font-size:11px;color:var(--text-dim);margin-left:auto">#${issue.id}</span>
+        <span style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace">${esc(issue.packName)} · ${esc(issue.levelName)}</span>
+        <span style="font-size:11px;color:var(--text-dim);margin-left:auto;font-family:'DM Mono',monospace">#${issue.id}</span>
       </div>
-      <div style="font-size:13px;color:var(--text);line-height:1.5">${esc(qText.substring(0,120))}${qText.length>120?'…':''}</div>
-      <div style="font-size:12px;color:var(--text-dim);font-style:italic">${esc(issue.note)}</div>
+      ${qHtml}
+      <div style="font-size:12px;color:var(--text-dim);font-style:italic;margin-top:2px">⚠ ${esc(issue.note)}</div>
       <div style="display:flex;gap:8px;margin-top:4px">
         ${issue.issue === 'wrong_answer' && issue.fixedCorrect !== undefined
           ? `<button class="q-btn" style="border-color:rgba(90,143,175,0.4);color:#5A8FAF" onclick="applyVetFix(${idx})">Fix answer</button>`
@@ -2896,8 +2928,11 @@ function applyVetFix(idx) {
 function applyVetRemove(idx) {
   const issue = vetIssues[idx];
   if (!issue) return;
-  QB[issue.packId][issue.levelIdx] = QB[issue.packId][issue.levelIdx].filter(q => q.id !== issue.id);
+  const level = QB[issue.packId] && QB[issue.packId][issue.levelIdx];
+  if (!level) { toast("Question not found", "error"); return; }
+  QB[issue.packId][issue.levelIdx] = level.filter(q => q.id !== issue.id);
   save(); renderSidebar(); renderMain();
+  toast("Question removed ✓", "success");
   vetIssues.splice(idx, 1);
   renderVetReport();
 }
