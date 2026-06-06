@@ -1642,7 +1642,6 @@ function renderMain() {
                </button>`}
           <button class="btn btn-secondary" onclick="clearAllLevels()" style="color:var(--red);border-color:rgba(224,92,74,0.25)" onmouseover="this.style.borderColor='rgba(224,92,74,0.5)'" onmouseout="this.style.borderColor='rgba(224,92,74,0.25)'">Clear All</button>
           <button class="btn btn-secondary" onclick="exportPack()">Export JSON</button>
-          <button class="btn btn-secondary" onclick="exportManifest()">Manifest</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -2658,21 +2657,6 @@ function exportAll() {
       if (i === PACKS.length - 1) toast("Exported all packs!", "success");
     }, i * 100);
   });
-}
-
-function exportManifest() {
-  const today = new Date().toISOString().slice(0, 10);
-  const packs = PACKS.map(p => ({
-    id: p.id,
-    name: p.name,
-    category: p.cat,
-    icon: p.icon || CATS[p.cat].icon,
-    levelCount: p.levels.length,
-    questionCount: (QB[p.id] || []).reduce((s,l) => s + l.length, 0),
-    version: 1
-  }));
-  downloadJSON('manifest.json', { version: 1, generated: today, packs });
-  toast("manifest.json exported ✓", "success");
 }
 
 function buildPackJSON(pack, cat) {

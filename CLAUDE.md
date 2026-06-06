@@ -132,10 +132,6 @@ See `buildPackJSON()` — includes:
   - Quotes: `{ id, quote, author }`
   - Verbal: `{ id, passage, statement, correct }`
 
-## Manifest export
-`exportManifest()` → manifest.json with version, generated date, and summary entry per pack
-(id, name, category, icon, levelCount, questionCount, version: 1)
-
 ## Update log — COMPLETED
 - [x] #1 Import / backup (Backup ↓ / Restore ↑ buttons in header)
 - [x] #2 New category + new pack creation (Manage panel — create/delete packs)
