@@ -1239,8 +1239,8 @@ body {
 const CATS = {
   school: { label: "School", icon: "📚" },
   languages: { label: "Languages", icon: "🌐" },
-  "general-knowledge": { label: "General Knowledge", icon: "🌍" },
-  iq: { label: "Assessment Prep", icon: "🎯" },
+  "general knowledge": { label: "General Knowledge", icon: "🌍" },
+  "assessment prep": { label: "Assessment Prep", icon: "🎯" },
   specials: { label: "Specials", icon: "⭐" }
 };
 
@@ -1297,38 +1297,38 @@ const PACKS = [
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning German. Test vocabulary (English→German translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (articles, plurals, everyday phrases), B1 (cases, modal verbs, past tense), B2 (Konjunktiv, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
   // ── GENERAL KNOWLEDGE ──
-  { id: "gk-music",        cat: "general-knowledge", name: "Music",              levels: ["Easy","Medium","Hard","Expert","Legendary"],
+  { id: "gk-music",        cat: "general knowledge", name: "Music",              levels: ["Easy","Medium","Hard","Expert","Legendary"],
     generationInstructions: "Music played on the radio and hitting the charts — pop, rock, r&b, hip-hop, electronic, punk, metal, and indie. 1950s to present, with extra depth in the 1990s (Britpop, grunge, and the era's defining artists). Easy: household-name artists and their biggest hits that anyone would recognise (e.g. 'Which band sang Smells Like Teen Spirit?'). Medium: albums, band members, music history, genre origins, iconic tours and feuds. Hard: deeper catalogue knowledge, chart positions, producers, side projects, and record labels. Expert: specific recording details, session musicians, B-sides, industry facts, award records. Legendary: trivia only a serious music obsessive would know — obscure collaborations, release dates, chart placements. Vary topics widely across genres and decades — do not cluster around the same artists." },
-  { id: "gk-film",         cat: "general-knowledge", name: "Film",               levels: ["Easy","Medium","Hard","Expert","Legendary"],
+  { id: "gk-film",         cat: "general knowledge", name: "Film",               levels: ["Easy","Medium","Hard","Expert","Legendary"],
     generationInstructions: "Cinema from the 1950s to present — blockbusters, cult classics, and award-winners from Hollywood and beyond. Easy: iconic films and their biggest stars that any casual moviegoer would know (e.g. 'Who directed Jurassic Park?'). Medium: film history, franchise details, directors' bodies of work, Academy Award winners, and classic scenes. Hard: cinematographers, screenwriters, production facts, box office records, and deeper franchise knowledge. Expert: specific casting decisions, production trivia, studio history, and lesser-known works by major directors. Legendary: trivia only a dedicated cinephile would know — obscure credits, alternate cuts, on-set stories. Focus on widely-seen films rather than arthouse — questions should feel satisfying to a fan who watches a lot of movies. Vary across genres and decades." },
-  { id: "gk-art",          cat: "general-knowledge", name: "Art",                levels: ["Easy","Medium","Hard","Expert","Legendary"],
+  { id: "gk-art",          cat: "general knowledge", name: "Art",                levels: ["Easy","Medium","Hard","Expert","Legendary"],
     generationInstructions: "Visual art from the Renaissance to the present day — painting, sculpture, and photography. Focus on artists and works that appear in mainstream culture: museum blockbusters, iconic images, and names that feature in general education. Easy: the most recognisable works and artists in the world (e.g. 'Who painted the Mona Lisa?'). Medium: art movements, artist biographies, famous museums and collections, and the stories behind iconic works. Hard: specific techniques, art history chronology, lesser-known works by famous artists, and auction records. Expert: deeper art history, patrons and influences, specific periods within an artist's career. Legendary: trivia only an art historian or serious collector would know. Lean toward Western art history but include globally significant artists. Avoid overly academic or technical theory — questions should feel accessible to a curious non-specialist." },
-  { id: "gk-orienteering", cat: "general-knowledge", name: "Orienteering Facts", levels: ["Easy","Medium","Hard","Expert","Legendary"],
+  { id: "gk-orienteering", cat: "general knowledge", name: "Orienteering Facts", levels: ["Easy","Medium","Hard","Expert","Legendary"],
     generationInstructions: "Trivia about the sport of orienteering — competitions, formats, equipment, and the community. Easy: basic rules and concepts that a newcomer to the sport would know (e.g. 'What tool is essential in orienteering?'). Medium: competition formats (sprint, forest, night, relay), major events (World Championships, World Cup), and course-setting concepts. Hard: IOF rules, elite athletes past and present, national federations, and specific championship history. Expert: detailed competition formats, map scales and symbols, event records, and prominent clubs or nations — with a slight lean toward IFK Lidingö SOK and Swedish orienteering in the 1997–2009 period. Legendary: trivia only a seasoned orienteer or official would know — with a particular tendency toward IFK Lidingö SOK results, athletes, and milestones from 1997–2009. Vary between the technical, the competitive, and the cultural side of the sport." },
-  { id: "gk-olympics",     cat: "general-knowledge", name: "Olympic Facts",      levels: ["Easy","Medium","Hard","Expert","Legendary"],
+  { id: "gk-olympics",     cat: "general knowledge", name: "Olympic Facts",      levels: ["Easy","Medium","Hard","Expert","Legendary"],
     generationInstructions: "Trivia about the Olympic Games — Summer and Winter editions, athletes, sports, host cities, and history. Easy: iconic moments and household-name Olympians that anyone would recognise (e.g. 'In which city were the 2012 Summer Olympics held?'). Medium: host city history, medal records, discontinued and new sports, and famous performances. Hard: specific results and records, lesser-known champions, Olympic political history, and the history of the IOC. Expert: detailed athletics and event history, doping controversies, bidding processes, and records by sport. Legendary: trivia only a dedicated Olympic historian would know — obscure results, early Games history, forgotten champions. Cover both Summer and Winter Games, and vary across sports and eras." },
-  { id: "gk-athletics",    cat: "general-knowledge", name: "Athletic Facts",     levels: ["Easy","Medium","Hard","Expert","Legendary"],
+  { id: "gk-athletics",    cat: "general knowledge", name: "Athletic Facts",     levels: ["Easy","Medium","Hard","Expert","Legendary"],
     generationInstructions: "Trivia about athletics (track and field) — sprints, middle and long distance, jumps, throws, combined events, and road racing. Easy: world-famous athletes and landmark moments that any sports fan would know (e.g. 'Who is known as the fastest man in the world?'). Medium: world records, major championships (World Athletics Championships, Diamond League), iconic rivalries, and national athletics histories. Hard: specific championship results, record progressions, event rules and technical details, and lesser-known world-class athletes. Expert: deep championship history, performance data, governing body rules, and records by event and era. Legendary: trivia only a hardcore athletics fan or coach would know — obscure records, heat results, historical milestones. Cover all disciplines across both men's and women's events. Vary across eras from the 1950s to present." },
   // ── IQ ──
-  { id: "numerical-reasoning", cat: "iq", name: "Numerical Reasoning",
+  { id: "numerical-reasoning", cat: "assessment prep", name: "Numerical Reasoning",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Modelled on numerical reasoning tests used in graduate and professional hiring (SHL, Korn Ferry, Cubiks, Saville). QUALITY MATTERS — each question must be carefully constructed and unambiguous. NOT pure arithmetic — test the ability to extract and interpret numerical data under time pressure. Present a brief scenario with data (a table row, percentage, growth rate, or ratio described in text), then ask a question requiring calculation or inference. Easy: single-step from clear data. Medium: two-step interpretation. Hard: comparison across multiple values or unit conversion. Expert: multi-step with implicit or partially stated data. Keep numbers realistic. One unambiguously correct answer." },
-  { id: "abstract-reasoning", cat: "iq", name: "Abstract Reasoning",
+  { id: "abstract-reasoning", cat: "assessment prep", name: "Abstract Reasoning",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Modelled on abstract/inductive reasoning tests used in graduate hiring (SHL, Korn Ferry, Cubiks). QUALITY MATTERS — one unambiguous rule, one clear correct answer. This is a MIXED pack mirroring real test conditions — spread questions across ALL 10 types below, roughly evenly. Do NOT default to sequences only.\n\nTypes to use:\n1. Number sequences — 2,4,8,16,? (include second-order differences at harder levels)\n2. Letter sequences — A,C,E,G,?\n3. Matrix/grid — rule across rows AND columns: '2,4,8/3,6,12/5,10,?'\n4. Interleaved dual series — A,Z,B,Y,C,X,?\n5. Alphanumeric combined — A1,C3,E5,G7,?\n6. Input/output rule — 2→5, 4→9, 6→13, 8→?\n7. Transformation rule — A→D, C→F, G→J, M→?\n8. Letter algebra — 'If A+A+A=12 and B=A-1, what is B+B?'\n9. Odd one out — which item breaks the rule?\n10. Analogies — 'X is to Y as Z is to?'\n11. Logic/deduction — short syllogism or if/then\n\nDifficulty: Easy=single obvious rule. Medium=compound or 2-step. Hard=multi-layered or combined types. Expert=lateral thinking required.\nWrong answers must reflect plausible misidentification. Question must fit in 90 chars." },
-  { id: "verbal-reasoning",   cat: "iq", name: "Verbal Reasoning", special: "verbal",
+  { id: "verbal-reasoning",   cat: "assessment prep", name: "Verbal Reasoning", special: "verbal",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Modelled on verbal reasoning tests used in graduate and professional hiring (SHL Verbal Reasoning, Korn Ferry, Cubiks). QUALITY MATTERS — passages and statements must be precise, unambiguous, and legally defensible as True/False/Cannot Say. Short passage (2-4 sentences, factual and neutral) + a statement to evaluate. True = clearly stated or logically follows. False = contradicts the passage. Cannot Say = genuinely unverifiable from the passage — not merely unlikely. Balance all three answer types. Self-contained passages only — no outside knowledge required. Readable in 20-30 seconds. Easy: direct inference. Medium: careful reading. Hard: subtle implications. Expert: deliberate nuance and ambiguity." },
-  { id: "iq-number-seq",  cat: "iq", name: "Number Sequences",
+  { id: "iq-number-seq",  cat: "assessment prep", name: "Number Sequences",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Inspired by numerical and abstract reasoning tests used in hiring (SHL, Korn Ferry, Cubiks). QUALITY MATTERS — each sequence must have one clear unambiguous rule. Find the next number in a sequence. Easy: simple progressions (×2, +5). Medium: geometric or mixed rules. Hard: multi-rule patterns or combined operations. Expert: complex patterns, Fibonacci-like or polynomial. Always 4 plausible answer choices — wrong answers should reflect common rule-misidentification, not random numbers. Format: 'What comes next? 2, 4, 8, 16, ?'" },
-  { id: "iq-odd-one-out", cat: "iq", name: "Odd One Out",
+  { id: "iq-odd-one-out", cat: "assessment prep", name: "Odd One Out",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Inspired by abstract and verbal reasoning tests used in hiring (SHL, Cubiks, Saville). QUALITY MATTERS — there must be one unambiguously correct answer with a clear logical rule. Which item doesn't belong? Easy: obvious category mismatches. Medium: subtler distinctions (properties, number theory, function). Hard: items sharing multiple traits — only one subtle rule separates the odd one. Expert: abstract or multi-layered reasoning required. Answer choices are the 4 items themselves." },
-  { id: "iq-analogies",   cat: "iq", name: "Analogies",
+  { id: "iq-analogies",   cat: "assessment prep", name: "Analogies",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Inspired by verbal and abstract reasoning tests used in professional hiring (SHL, Korn Ferry). QUALITY MATTERS — the relationship must be precise and the correct answer unambiguous. A is to B as C is to ? Easy: concrete everyday relationships (hot→cold, puppy→dog). Medium: functional or part-whole relationships. Hard: abstract or domain-specific (science, language, logic). Expert: multi-layered or lateral thinking. Format: 'X is to Y as Z is to?' — 4 choices, one clearly correct, others plausible but wrong." },
-  { id: "iq-logic",       cat: "iq", name: "Logic Puzzles",
+  { id: "iq-logic",       cat: "assessment prep", name: "Logic Puzzles",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 3, defaultGenCount: 25,
     generationInstructions: "Inspired by logical reasoning tests used in professional hiring (SHL, Watson-Glaser, Korn Ferry). QUALITY MATTERS — each puzzle must have one logically airtight correct answer. Short deductive reasoning puzzles. Easy: simple syllogisms (All A are B, X is A, therefore?). Medium: 2-step deductions, truth/lie scenarios. Hard: multi-premise reasoning, elimination. Expert: complex multi-step logic chains. CRITICAL: entire question must fit in 90 characters — keep premises ultra-short. 4 answer choices, one unambiguously correct." },
   // ── SPECIALS ──
@@ -1371,7 +1371,7 @@ const PACK_TEMPLATES = {
     { name: "Norwegian",        targetLanguage: "Norwegian" },
     { name: "Finnish",          targetLanguage: "Finnish" },
   ],
-  "general-knowledge": [
+  "general knowledge": [
     { name: "Capital Cities" },
     { name: "World Flags" },
     { name: "Football Facts" },
@@ -1383,7 +1383,7 @@ const PACK_TEMPLATES = {
     { name: "History" },
     { name: "Sport" },
   ],
-  iq: [
+  "assessment prep": [
     { name: "Number Sequences" },
     { name: "Analogies" },
     { name: "Odd One Out" },
@@ -1424,8 +1424,8 @@ QB["mindful-quotes"][0] = [
 
 const LEVEL_PRESETS = {
   school:    ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
-  "general-knowledge": ["Easy","Medium","Hard","Expert","Legendary"],
-  iq:        ["Easy","Medium","Hard","Expert"],
+  "general knowledge": ["Easy","Medium","Hard","Expert","Legendary"],
+  "assessment prep": ["Easy","Medium","Hard","Expert"],
   languages: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
   specials:  ["Pool"]
 };
@@ -1444,7 +1444,8 @@ function loadCustomPacks() {
     const d = localStorage.getItem('toll_custom_packs');
     if (d) {
       JSON.parse(d).forEach(p => {
-        if (p.cat === 'popular') p.cat = 'general-knowledge';
+        if (p.cat === 'popular' || p.cat === 'general-knowledge') p.cat = 'general knowledge';
+        if (p.cat === 'iq') p.cat = 'assessment prep';
         if (!PACKS.find(e => e.id === p.id)) {
           PACKS.push(p);
           if (!QB[p.id]) QB[p.id] = p.levels.map(() => []);
@@ -2669,9 +2670,9 @@ function buildPackJSON(pack, cat) {
   return {
     id: pack.id,
     name: pack.name,
-    category: cat.label.toLowerCase(),
+    category: pack.cat,
     icon: pack.icon || cat.icon,
-    categoryMeta: { id: cat.label.toLowerCase(), label: cat.label, icon: cat.icon },
+    categoryMeta: { id: pack.cat, label: cat.label, icon: cat.icon },
     algorithmic: pack.algo || null,
     special: pack.special || null,
     levels: pack.levels.map((lName, i) => {
@@ -2749,7 +2750,7 @@ function renderManagePanel() {
   html += `</div>`;
 
   // Section 2 — new pack form
-  const defaultPills = LEVEL_PRESETS['general-knowledge'].map(l => `<span class="level-pill">${l}</span>`).join('');
+  const defaultPills = LEVEL_PRESETS['general knowledge'].map(l => `<span class="level-pill">${l}</span>`).join('');
   html += `<div class="manage-section">
     <div class="manage-section-title">New Pack</div>
     <div class="manage-form">
@@ -2760,10 +2761,10 @@ function renderManagePanel() {
       <div class="field">
         <label>Category</label>
         <select id="npCat" onchange="manageUpdateLevels()">
-          <option value="general-knowledge">General Knowledge 🌍</option>
+          <option value="general knowledge">General Knowledge 🌍</option>
           <option value="school">School 📚</option>
           <option value="languages">Languages 🌐</option>
-          <option value="iq">IQ 🧠</option>
+          <option value="assessment prep">Assessment Prep 🎯</option>
           <option value="specials">Specials ⭐</option>
         </select>
       </div>
@@ -2771,7 +2772,7 @@ function renderManagePanel() {
         <label>Start from template <span style="color:var(--text-dim);font-weight:400">(optional)</span></label>
         <select id="npTemplate" onchange="manageApplyTemplate()">
           <option value="">— blank —</option>
-          ${(PACK_TEMPLATES['general-knowledge'] || []).map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}
+          ${(PACK_TEMPLATES['general knowledge'] || []).map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}
         </select>
       </div>
       <div id="npLangFields" style="display:none">
@@ -2807,7 +2808,7 @@ function renderManagePanel() {
 
 function manageUpdateLevels() {
   const cat = document.getElementById('npCat').value;
-  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['general-knowledge'];
+  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['general knowledge'];
   document.getElementById('npLevels').innerHTML = levels.map(l => `<span class="level-pill">${l}</span>`).join('');
   const langFields = document.getElementById('npLangFields');
   if (langFields) langFields.style.display = cat === 'languages' ? 'block' : 'none';
@@ -2842,7 +2843,7 @@ function createPack() {
   const icon = CATS[cat] ? CATS[cat].icon : '📦';
   const userDescription = document.getElementById('npDesc').value.trim();
   const generationInstructions = document.getElementById('npInstructions').value.trim();
-  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['general-knowledge'];
+  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['general knowledge'];
   const targetLanguage = cat === 'languages' ? (document.getElementById('npTargetLang').value.trim() || '') : '';
   const nativeLanguage = cat === 'languages' ? (document.getElementById('npNativeLang').value.trim() || '') : '';
 

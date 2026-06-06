@@ -22,8 +22,8 @@ A standalone single-file HTML tool (`index.html`) for managing all quiz content 
 ## Categories
 - School 📚 — Grade 1–12 levels
 - Languages 🌐 — CEFR levels (A1 Beginner → C2 Mastery); packs named "Target / Native" (e.g. "French / English")
-- General Knowledge 🌍 — Easy/Medium/Hard/Expert/Legendary (internal key: `general-knowledge`; was `popular` — migration exists in loadCustomPacks)
-- Assessment Prep 🎯 — Easy/Medium/Hard/Expert (was "IQ"); hiring test style
+- General Knowledge 🌍 — Easy/Medium/Hard/Expert/Legendary (internal key: `"general knowledge"`)
+- Assessment Prep 🎯 — Easy/Medium/Hard/Expert (internal key: `"assessment prep"`)
 - Specials ⭐ — hardcoded only
 
 ## Pack structure
