@@ -2669,9 +2669,9 @@ function buildPackJSON(pack, cat) {
   return {
     id: pack.id,
     name: pack.name,
-    category: pack.cat,
+    category: cat.label.toLowerCase(),
     icon: pack.icon || cat.icon,
-    categoryMeta: { id: pack.cat, label: cat.label, icon: cat.icon },
+    categoryMeta: { id: cat.label.toLowerCase(), label: cat.label, icon: cat.icon },
     algorithmic: pack.algo || null,
     special: pack.special || null,
     levels: pack.levels.map((lName, i) => {
