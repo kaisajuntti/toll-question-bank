@@ -22,7 +22,7 @@ A standalone single-file HTML tool (`index.html`) for managing all quiz content 
 ## Categories
 - School 📚 — Grade 1–12 levels
 - Languages 🌐 — CEFR levels (A1 Beginner → C2 Mastery); packs named "Target / Native" (e.g. "French / English")
-- Popular 🌍 — Easy/Medium/Hard/Expert/Legendary
+- General Knowledge 🌍 — Easy/Medium/Hard/Expert/Legendary (internal key: `general-knowledge`; was `popular` — migration exists in loadCustomPacks)
 - Assessment Prep 🎯 — Easy/Medium/Hard/Expert (was "IQ"); hiring test style
 - Specials ⭐ — hardcoded only
 
@@ -51,6 +51,9 @@ Current specials:
 - `quotes` — no multiple choice; format is { id, quote, author } throughout
 - `verbal` — True/False/Cannot Say; format is { id, passage, statement, correct } throughout; modelled on SHL-style verbal reasoning hiring tests
 
+Planned specials (not yet implemented — require Toll app changes too):
+- `paspaaret` — På Spåret format: guess a destination from 5 progressive clues (10→8→6→4→2 points). Format: { id, destination, clues: [string × 5] }. Clues ordered hardest→easiest; the 2-point clue almost always contains a pun on the destination name. Based on the Swedish SVT gameshow (1987–present) where teams watch a filmed train journey and guess the destination. Gameplay in the app needs custom UI (reveal clues one at a time, decreasing score). Destinations can be Swedish, European, or global. See https://pasparetbloggen.blogspot.com/p/blog-page.html for example questions.
+
 The Manage panel shows special packs with a SPECIAL badge and 🔒 icon. The delete button is hidden and `deletePack()` has a hard guard that rejects attempts to delete them.
 
 ## Hardcoded packs (non-deletable)
@@ -70,6 +73,8 @@ Only the following packs are hardcoded in PACKS array:
 - **Numerical Reasoning, Abstract Reasoning, Verbal Reasoning** (assessment prep, broad)
 - **Number Sequences, Odd One Out, Analogies, Logic Puzzles** (assessment prep, focused)
 - **The Idiot Question, Bluff, Mindful Quotes** (specials)
+- **Music, Film, Art, Orienteering Facts, Olympic Facts, Athletic Facts** (general-knowledge, Easy–Legendary)
+  - Orienteering Facts: Expert/Legendary levels have a bias toward IFK Lidingö SOK and Swedish orienteering 1997–2009
 
 All other packs are created via the Manage panel as custom packs.
 
