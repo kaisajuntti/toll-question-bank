@@ -1239,7 +1239,7 @@ body {
 const CATS = {
   school: { label: "School", icon: "📚" },
   languages: { label: "Languages", icon: "🌐" },
-  popular: { label: "General Knowledge", icon: "🌍" },
+  "general-knowledge": { label: "General Knowledge", icon: "🌍" },
   iq: { label: "Assessment Prep", icon: "🎯" },
   specials: { label: "Specials", icon: "⭐" }
 };
@@ -1296,6 +1296,13 @@ const PACKS = [
   { id: "german-en",   cat: "languages", name: "German/English",   targetLanguage: "German",   nativeLanguage: "English",
     levels: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
     generationInstructions: "Questions in English for English speakers learning German. Test vocabulary (English→German translation), grammar rules, and common phrases. Match difficulty strictly to the CEFR level: A1 (greetings, numbers, basic nouns), A2 (articles, plurals, everyday phrases), B1 (cases, modal verbs, past tense), B2 (Konjunktiv, idiomatic expressions), C1–C2 (advanced grammar, literature, register)." },
+  // ── GENERAL KNOWLEDGE ──
+  { id: "gk-music",        cat: "general-knowledge", name: "Music",              levels: ["Easy","Medium","Hard","Expert","Legendary"] },
+  { id: "gk-film",         cat: "general-knowledge", name: "Film",               levels: ["Easy","Medium","Hard","Expert","Legendary"] },
+  { id: "gk-art",          cat: "general-knowledge", name: "Art",                levels: ["Easy","Medium","Hard","Expert","Legendary"] },
+  { id: "gk-orienteering", cat: "general-knowledge", name: "Orienteering Facts", levels: ["Easy","Medium","Hard","Expert","Legendary"] },
+  { id: "gk-olympics",     cat: "general-knowledge", name: "Olympic Facts",      levels: ["Easy","Medium","Hard","Expert","Legendary"] },
+  { id: "gk-athletics",    cat: "general-knowledge", name: "Athletic Facts",     levels: ["Easy","Medium","Hard","Expert","Legendary"] },
   // ── IQ ──
   { id: "numerical-reasoning", cat: "iq", name: "Numerical Reasoning",
     levels: ["Easy","Medium","Hard","Expert"], defaultTime: 60, defaultQuestions: 5, defaultGenCount: 25,
@@ -1358,18 +1365,15 @@ const PACK_TEMPLATES = {
     { name: "Norwegian",        targetLanguage: "Norwegian" },
     { name: "Finnish",          targetLanguage: "Finnish" },
   ],
-  popular: [
+  "general-knowledge": [
     { name: "Capital Cities" },
     { name: "World Flags" },
     { name: "Football Facts" },
-    { name: "General Knowledge" },
     { name: "Famous Quotes" },
     { name: "Space & Astronomy" },
     { name: "Movies & TV" },
-    { name: "Music" },
     { name: "Food & Cooking" },
     { name: "Science & Nature" },
-    { name: "Art & Literature" },
     { name: "History" },
     { name: "Sport" },
   ],
@@ -1414,7 +1418,7 @@ QB["mindful-quotes"][0] = [
 
 const LEVEL_PRESETS = {
   school:    ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9","Grade 10","Grade 11","Grade 12"],
-  popular:   ["Easy","Medium","Hard","Expert","Legendary"],
+  "general-knowledge": ["Easy","Medium","Hard","Expert","Legendary"],
   iq:        ["Easy","Medium","Hard","Expert"],
   languages: ["A1 · Beginner","A2 · Elementary","B1 · Intermediate","B2 · Upper Intermediate","C1 · Advanced","C2 · Mastery"],
   specials:  ["Pool"]
@@ -1434,6 +1438,7 @@ function loadCustomPacks() {
     const d = localStorage.getItem('toll_custom_packs');
     if (d) {
       JSON.parse(d).forEach(p => {
+        if (p.cat === 'popular') p.cat = 'general-knowledge';
         if (!PACKS.find(e => e.id === p.id)) {
           PACKS.push(p);
           if (!QB[p.id]) QB[p.id] = p.levels.map(() => []);
@@ -2750,7 +2755,7 @@ function renderManagePanel() {
   html += `</div>`;
 
   // Section 2 — new pack form
-  const defaultPills = LEVEL_PRESETS['popular'].map(l => `<span class="level-pill">${l}</span>`).join('');
+  const defaultPills = LEVEL_PRESETS['general-knowledge'].map(l => `<span class="level-pill">${l}</span>`).join('');
   html += `<div class="manage-section">
     <div class="manage-section-title">New Pack</div>
     <div class="manage-form">
@@ -2761,7 +2766,7 @@ function renderManagePanel() {
       <div class="field">
         <label>Category</label>
         <select id="npCat" onchange="manageUpdateLevels()">
-          <option value="popular">General Knowledge 🌍</option>
+          <option value="general-knowledge">General Knowledge 🌍</option>
           <option value="school">School 📚</option>
           <option value="languages">Languages 🌐</option>
           <option value="iq">IQ 🧠</option>
@@ -2772,7 +2777,7 @@ function renderManagePanel() {
         <label>Start from template <span style="color:var(--text-dim);font-weight:400">(optional)</span></label>
         <select id="npTemplate" onchange="manageApplyTemplate()">
           <option value="">— blank —</option>
-          ${(PACK_TEMPLATES['popular'] || []).map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}
+          ${(PACK_TEMPLATES['general-knowledge'] || []).map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}
         </select>
       </div>
       <div id="npLangFields" style="display:none">
@@ -2808,7 +2813,7 @@ function renderManagePanel() {
 
 function manageUpdateLevels() {
   const cat = document.getElementById('npCat').value;
-  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['popular'];
+  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['general-knowledge'];
   document.getElementById('npLevels').innerHTML = levels.map(l => `<span class="level-pill">${l}</span>`).join('');
   const langFields = document.getElementById('npLangFields');
   if (langFields) langFields.style.display = cat === 'languages' ? 'block' : 'none';
@@ -2843,7 +2848,7 @@ function createPack() {
   const icon = CATS[cat] ? CATS[cat].icon : '📦';
   const userDescription = document.getElementById('npDesc').value.trim();
   const generationInstructions = document.getElementById('npInstructions').value.trim();
-  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['popular'];
+  const levels = LEVEL_PRESETS[cat] || LEVEL_PRESETS['general-knowledge'];
   const targetLanguage = cat === 'languages' ? (document.getElementById('npTargetLang').value.trim() || '') : '';
   const nativeLanguage = cat === 'languages' ? (document.getElementById('npNativeLang').value.trim() || '') : '';
 
