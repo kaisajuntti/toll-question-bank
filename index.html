@@ -2144,6 +2144,22 @@ async function bootstrapAll() {
   toast(`Bootstrap complete — ${targets.length} levels generated ✓`, "success");
 }
 
+function buildExistingQsBlock(pack, levelIdx) {
+  const existing = QB[pack.id] && QB[pack.id][levelIdx];
+  if (!existing || existing.length === 0) return '';
+  const isVerbal = pack.special === 'verbal';
+  const isQuotes = pack.special === 'quotes';
+  let lines;
+  if (isVerbal) {
+    lines = existing.map(q => `- Statement: ${q.statement}`);
+  } else if (isQuotes) {
+    lines = existing.map(q => `- "${q.quote}" — ${q.author}`);
+  } else {
+    lines = existing.map(q => `- ${q.q}`);
+  }
+  return `ALREADY IN THIS LEVEL — do not duplicate or closely resemble any of these:\n${lines.join('\n')}\n\n`;
+}
+
 async function generateAIForLevel(pack, levelIdx, apiKey) {
   const level = pack.levels[levelIdx];
   const instructions = pack.generationInstructions || '';
@@ -2152,6 +2168,7 @@ async function generateAIForLevel(pack, levelIdx, apiKey) {
   const isBinary = pack.special === 'binary';
   const isQuotes = pack.special === 'quotes';
   const isVerbal = pack.special === 'verbal';
+  const existingCtx = buildExistingQsBlock(pack, levelIdx);
 
   let prompt = '';
   if (isVerbal) {
@@ -2161,20 +2178,20 @@ Each question: a factual, neutral passage (2-4 sentences) + a statement to evalu
 True = clearly follows from the passage. False = contradicts the passage. Cannot Say = cannot be determined from the passage alone.
 Balance True/False/Cannot Say across the ${count} questions. Passages must be self-contained — no outside knowledge needed.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Return ONLY a valid JSON array:
+${existingCtx}Return ONLY a valid JSON array:
 [{"passage":"...","statement":"...","correct":0}]
 correct: 0=True, 1=False, 2=Cannot Say`;
   } else if (isQuotes) {
     prompt = `Generate ${count} mindful, reflective quotes for a wellness app. Mix well-known and lesser-known authors. Themes: presence, patience, perspective, growth, stillness.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Return ONLY a valid JSON array:
+${existingCtx}Return ONLY a valid JSON array:
 [{"quote":"text","author":"Name"}]`;
   } else if (isBluff) {
     prompt = `Generate ${count} Bluff quiz questions for an educational app called Toll.
 Pack: ${pack.name}, Level: ${level}
 Each question shows 3 statements about a topic. 2 are true, 1 is false. The player spots the lie.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Mix topics widely. Make the false statement plausible, not obvious.
+${existingCtx}Mix topics widely. Make the false statement plausible, not obvious.
 Return ONLY a valid JSON array:
 [{"q":"About [topic] — spot the lie:\\nA) [stmt]\\nB) [stmt]\\nC) [stmt]","answers":["A is false","B is false","C is false"],"correct":0}]
 correct is 0, 1, or 2.`;
@@ -2182,7 +2199,7 @@ correct is 0, 1, or 2.`;
     prompt = `Generate ${count} "Idiot Question" quiz questions in English for an educational app.
 These sound easy but make you second-guess yourself. Two answers only: Yes/No or A/B.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Return ONLY a valid JSON array:
+${existingCtx}Return ONLY a valid JSON array:
 [{"q":"question","answers":["Yes","No"],"correct":0}]`;
   } else {
     const langCtx = (pack.targetLanguage && pack.nativeLanguage)
@@ -2197,7 +2214,7 @@ ${instructions ? `Instructions: ${instructions}` : ''}
 Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
 ${pack.cat === 'school' ? 'Grade reference: Grade 1 = age 7 (very basic), Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the grade. IMPORTANT: questions must be quick to evaluate — a student should read and answer in under 10 seconds. Keep questions short and direct. No multi-step problems.' : ''}
-IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
+${existingCtx}IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
 Return ONLY a valid JSON array, no markdown:
 [{"q":"question","answers":["a","b","c","d"],"correct":0}]
 Vary which index (0-3) is correct.`;
@@ -2272,6 +2289,7 @@ async function generateAI() {
   const userInstructions = document.getElementById('gInstructions').value;
   const instructions = [pack.generationInstructions || '', userInstructions].filter(Boolean).join('\n');
   const count = state.genCount;
+  const existingCtx = buildExistingQsBlock(pack, levelIdx);
 
   const btn = document.getElementById('genBtn');
   const btnText = document.getElementById('genBtnText');
@@ -2293,20 +2311,20 @@ Each question: a factual, neutral passage (2-4 sentences) + a statement to evalu
 True = clearly follows from the passage. False = contradicts the passage. Cannot Say = cannot be determined from the passage alone.
 Balance True/False/Cannot Say across the ${count} questions. Passages must be self-contained — no outside knowledge needed.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Return ONLY a valid JSON array:
+${existingCtx}Return ONLY a valid JSON array:
 [{"passage":"...","statement":"...","correct":0}]
 correct: 0=True, 1=False, 2=Cannot Say`;
   } else if (isQuotes) {
     prompt = `Generate ${count} mindful, reflective quotes for a wellness app. Mix well-known and lesser-known authors. Themes: presence, patience, perspective, growth, stillness.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Return ONLY a valid JSON array:
+${existingCtx}Return ONLY a valid JSON array:
 [{"quote":"text","author":"Name"}]`;
   } else if (isBluff) {
     prompt = `Generate ${count} Bluff quiz questions for an educational app called Toll.
 Pack: ${pack.name}, Level: ${level}
 Each question shows 3 statements about a topic. 2 are true, 1 is false. The player spots the lie.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Mix topics widely. Make the false statement plausible, not obvious.
+${existingCtx}Mix topics widely. Make the false statement plausible, not obvious.
 Return ONLY a valid JSON array:
 [{"q":"About [topic] — spot the lie:\\nA) [stmt]\\nB) [stmt]\\nC) [stmt]","answers":["A is false","B is false","C is false"],"correct":0}]
 correct is 0, 1, or 2.`;
@@ -2314,7 +2332,7 @@ correct is 0, 1, or 2.`;
     prompt = `Generate ${count} "Idiot Question" quiz questions in English for an educational app.
 These sound easy but make you second-guess yourself. Two answers only: Yes/No or A/B.
 ${instructions ? `Instructions: ${instructions}` : ''}
-Return ONLY a valid JSON array:
+${existingCtx}Return ONLY a valid JSON array:
 [{"q":"question","answers":["Yes","No"],"correct":0}]`;
   } else {
     const langCtx = (pack.targetLanguage && pack.nativeLanguage)
@@ -2329,7 +2347,7 @@ ${instructions ? `Instructions: ${instructions}` : ''}
 Requirements: 4 multiple choice answers, one correct, wrong answers plausible, appropriate difficulty.
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
 ${pack.cat === 'school' ? 'Grade reference: Grade 1 = age 7 (very basic), Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the grade. IMPORTANT: questions must be quick to evaluate — a student should read and answer in under 10 seconds. Keep questions short and direct. No multi-step problems.' : ''}
-IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
+${existingCtx}IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
 Return ONLY a valid JSON array, no markdown:
 [{"q":"question","answers":["a","b","c","d"],"correct":0}]
 Vary which index (0-3) is correct.`;
