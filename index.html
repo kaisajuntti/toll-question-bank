@@ -1530,6 +1530,10 @@ function save() {
 }
 
 function load() {
+  if (localStorage.getItem('toll_defaults_version') !== '2') {
+    localStorage.removeItem('toll_level_defaults');
+    localStorage.setItem('toll_defaults_version', '2');
+  }
   loadCustomPacks();
   try {
     const d = localStorage.getItem('toll_qb');
