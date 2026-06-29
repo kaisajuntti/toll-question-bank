@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.7</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-29.8</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1754,6 +1754,8 @@ function renderMain() {
         </label>`;
       }
       html += `</div>
+        ${!pack.special ? `<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Explanation (after a wrong answer) · optional</div>
+        <textarea id="nq-explain" rows="2" placeholder="Why the correct answer is right — short. Use line breaks for a worked example." style="${taStyle}"></textarea>` : ''}
         <div class="q-footer">
           <span style="font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace">new</span>
           <div class="q-actions" style="opacity:1">
@@ -1818,6 +1820,8 @@ function renderMain() {
             </label>`;
           });
           html += `</div>
+            ${!pack.special ? `<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Explanation (after a wrong answer) · optional</div>
+            <textarea id="eq-explain" rows="2" placeholder="Why the correct answer is right — short. Use line breaks for a worked example." style="${taStyle}">${esc(q.explanation || '')}</textarea>` : ''}
             <div class="q-footer">
               <span class="q-id">#${q.id}</span>
               <div class="q-actions" style="opacity:1">
@@ -1863,6 +1867,7 @@ function renderMain() {
             html += `<span class="q-answer ${i===q.correct?'correct':''}">${a}</span>`;
           });
           html += `</div>
+            ${q.explanation ? `<div style="margin-top:8px;font-size:11px;color:var(--text-mid);white-space:pre-line;border-left:2px solid var(--gold-dim);padding-left:8px;line-height:1.5">💡 ${esc(q.explanation)}</div>` : ''}
             <div class="q-footer">
               <span class="q-id">#${q.id}</span>
               <div class="q-actions">
@@ -2230,8 +2235,9 @@ Requirements: 4 multiple choice answers, one correct, wrong answers plausible, a
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
 ${pack.cat === 'school' ? 'Grade reference: Grade 1 = age 7 (very basic), Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the grade. IMPORTANT: questions must be quick to evaluate — a student should read and answer in under 10 seconds. Keep questions short and direct. No multi-step problems.' : ''}
 ${existingCtx}IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
+Also give each question an "explanation" — a short teaching note shown after a wrong answer: one plain sentence for a fact, or up to ~3 short lines for a worked example (use \\n between lines). Under 200 characters. Explain WHY the correct answer is right.
 Return ONLY a valid JSON array, no markdown:
-[{"q":"question","answers":["a","b","c","d"],"correct":0}]
+[{"q":"question","answers":["a","b","c","d"],"correct":0,"explanation":"why the correct answer is right"}]
 Vary which index (0-3) is correct.`;
   }
 
@@ -2278,7 +2284,8 @@ Vary which index (0-3) is correct.`;
       id: `${prefix}${String(existing + idx + 1).padStart(3,'0')}`,
       q: q.q,
       answers: q.answers,
-      correct: q.correct
+      correct: q.correct,
+      ...(q.explanation ? { explanation: String(q.explanation).slice(0, 240) } : {})
     }));
   }
 
@@ -2363,8 +2370,9 @@ Requirements: 4 multiple choice answers, one correct, wrong answers plausible, a
 Base context: Swedish school curriculum for School packs. Questions in English unless otherwise specified.
 ${pack.cat === 'school' ? 'Grade reference: Grade 1 = age 7 (very basic), Grade 6 = age 12, Grade 9 = age 15, Grade 12 = age 18 (advanced). Match difficulty and vocabulary strictly to the grade. IMPORTANT: questions must be quick to evaluate — a student should read and answer in under 10 seconds. Keep questions short and direct. No multi-step problems.' : ''}
 ${existingCtx}IMPORTANT: Question text must be 90 characters or fewer. Each answer option must be 28 characters or fewer.
+Also give each question an "explanation" — a short teaching note shown after a wrong answer: one plain sentence for a fact, or up to ~3 short lines for a worked example (use \\n between lines). Under 200 characters. Explain WHY the correct answer is right.
 Return ONLY a valid JSON array, no markdown:
-[{"q":"question","answers":["a","b","c","d"],"correct":0}]
+[{"q":"question","answers":["a","b","c","d"],"correct":0,"explanation":"why the correct answer is right"}]
 Vary which index (0-3) is correct.`;
   }
 
@@ -2414,7 +2422,8 @@ Vary which index (0-3) is correct.`;
         id: `${prefix}${String(existing+i+1).padStart(3,'0')}`,
         q: q.q,
         answers: q.answers,
-        correct: q.correct
+        correct: q.correct,
+        ...(q.explanation ? { explanation: String(q.explanation).slice(0, 240) } : {})
       }));
     }
 
@@ -2541,7 +2550,11 @@ function saveQ(qid) {
     }
     let correct = q.correct;
     document.querySelectorAll('input[name="eq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
-    level[qi] = { id: q.id, q: text, answers, correct };
+    const explEl = document.getElementById('eq-explain');
+    const explanation = explEl ? explEl.value.trim().slice(0, 240) : '';
+    const updated = { id: q.id, q: text, answers, correct };
+    if (explanation) updated.explanation = explanation;
+    level[qi] = updated;
   }
 
   save();
@@ -2607,7 +2620,11 @@ function saveNewQ() {
     }
     let correct = 0;
     document.querySelectorAll('input[name="nq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
-    QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), q: text, answers, correct });
+    const explEl = document.getElementById('nq-explain');
+    const explanation = explEl ? explEl.value.trim().slice(0, 240) : '';
+    const newQ = { id: newQid(state.packId), q: text, answers, correct };
+    if (explanation) newQ.explanation = explanation;
+    QB[state.packId][state.levelIdx].push(newQ);
   }
 
   save();
@@ -2686,7 +2703,7 @@ function buildPackJSON(pack, cat) {
           ? { id: q.id, passage: q.passage, statement: q.statement, correct: q.correct }
           : isQuotes
             ? { id: q.id, quote: q.quote, author: q.author }
-            : { id: q.id, question: q.q, answers: q.answers, correctIndex: q.correct }
+            : { id: q.id, question: q.q, answers: q.answers, correctIndex: q.correct, ...(q.explanation ? { explanation: q.explanation } : {}) }
         )
       };
     })
