@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-01.7</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-07-06.1</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1237,6 +1237,7 @@ body {
 // ═══════════════════════════════════════════════════
 
 const CATS = {
+  news: { label: "News", icon: "📰" },
   school: { label: "School", icon: "📚" },
   languages: { label: "Languages", icon: "🌐" },
   "general knowledge": { label: "General Knowledge", icon: "🌍" },
@@ -1245,6 +1246,12 @@ const CATS = {
 };
 
 const PACKS = [
+  // ── NEWS ──
+  { id: "news-sport",      cat: "news", name: "Sport",      special: "news", icon: "🏅", levels: ["Latest"], defaultQuestions: 3, defaultTime: 45 },
+  { id: "news-technology", cat: "news", name: "Technology", special: "news", icon: "💻", levels: ["Latest"], defaultQuestions: 3, defaultTime: 45 },
+  { id: "news-science",    cat: "news", name: "Science",    special: "news", icon: "🔬", levels: ["Latest"], defaultQuestions: 3, defaultTime: 45 },
+  { id: "news-world",      cat: "news", name: "World",      special: "news", icon: "🌍", levels: ["Latest"], defaultQuestions: 3, defaultTime: 45 },
+  { id: "news-sweden",     cat: "news", name: "Sweden",     special: "news", icon: "🇸🇪", levels: ["Latest"], defaultQuestions: 3, defaultTime: 45 },
   // ── SCHOOL / MATHS ──
   { id: "times-tables",    cat: "school", name: "Maths: Times Tables",           algo: "times-tables", levels: ["Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6"] },
   { id: "maths-add-sub",   cat: "school", name: "Maths: Addition & Subtraction",
@@ -1610,6 +1617,7 @@ function renderMain() {
   const totalQ = levels.reduce((s,l) => s + l.length, 0);
   const TARGET = 100;
 
+  const isNews   = pack.special === 'news';
   const isQuotes = pack.special === 'quotes';
   const isVerbal = pack.special === 'verbal';
   const filtered = level.filter(q =>
@@ -1635,26 +1643,30 @@ function renderMain() {
             <span class="badge">${totalQ} total questions</span>
             <span class="badge">${pack.levels.length} levels</span>
             ${pack.algo ? '<span class="badge algo">🔢 Algorithmic</span>' : ''}
-            ${pack.special ? `<span class="badge" style="border-color:rgba(196,163,90,0.3);color:var(--gold)">⭐ ${pack.special}</span>` : ''}
+            ${isNews ? `<span class="badge" style="border-color:rgba(70,160,90,0.3);color:var(--green)">📡 Live</span>` : pack.special ? `<span class="badge" style="border-color:rgba(196,163,90,0.3);color:var(--gold)">⭐ ${pack.special}</span>` : ''}
           </div>
         </div>
         <div class="pack-actions">
-          ${pack.algo
-            ? `<button class="btn btn-algo" onclick="openPanelForPack()">🔢 Generate</button>`
-            : `<button class="btn btn-ai" onclick="openPanelForPack()">✦ AI Generate</button>
-               <button class="btn btn-ai" id="btnGenAll" onclick="generateAllLevels()"${state.generatingAll ? ' disabled style="opacity:0.6;cursor:not-allowed"' : ''}>
-                 ${state.generatingAll ? '<span class="spinner"></span>' : '✦ All Levels'}
-               </button>`}
-          <button class="btn btn-secondary" onclick="clearAllLevels()" style="color:var(--red);border-color:rgba(224,92,74,0.25)" onmouseover="this.style.borderColor='rgba(224,92,74,0.5)'" onmouseout="this.style.borderColor='rgba(224,92,74,0.25)'">Clear All</button>
+          ${isNews
+            ? ``
+            : pack.algo
+              ? `<button class="btn btn-algo" onclick="openPanelForPack()">🔢 Generate</button>`
+              : `<button class="btn btn-ai" onclick="openPanelForPack()">✦ AI Generate</button>
+                 <button class="btn btn-ai" id="btnGenAll" onclick="generateAllLevels()"${state.generatingAll ? ' disabled style="opacity:0.6;cursor:not-allowed"' : ''}>
+                   ${state.generatingAll ? '<span class="spinner"></span>' : '✦ All Levels'}
+                 </button>`}
+          ${isNews ? '' : `<button class="btn btn-secondary" onclick="clearAllLevels()" style="color:var(--red);border-color:rgba(224,92,74,0.25)" onmouseover="this.style.borderColor='rgba(224,92,74,0.5)'" onmouseout="this.style.borderColor='rgba(224,92,74,0.25)'">Clear All</button>`}
           <button class="btn btn-secondary" onclick="exportPack()">Export JSON</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="progress-bar-wrap" style="flex:1">
-          <div class="progress-bar" style="width:${pct}%;background:${barColor}"></div>
-        </div>
-        <span class="q-count-label ${countClass}">${level.length}/${TARGET} questions</span>
-      </div>
+      ${isNews
+        ? `<div style="font-size:12px;color:var(--text-dim);padding:4px 0">📡 Questions fetched live from server · refreshed 3× per day · no local questions stored</div>`
+        : `<div style="display:flex;align-items:center;gap:10px">
+          <div class="progress-bar-wrap" style="flex:1">
+            <div class="progress-bar" style="width:${pct}%;background:${barColor}"></div>
+          </div>
+          <span class="q-count-label ${countClass}">${level.length}/${TARGET} questions</span>
+        </div>`}
     </div>
 
     <div class="level-tabs">`;
@@ -1663,8 +1675,8 @@ function renderMain() {
     const lCount = levels[i].length;
     const lNA = isLevelNA(pack.id, i);
     html += `<div class="level-tab ${i===state.levelIdx?'active':''}" onclick="selectLevel(${i})" style="display:flex;align-items:center;gap:5px;padding-right:6px${lNA?';opacity:0.45':''}">
-      <span>${lName}</span> ${lNA ? `<span class="tab-count" style="color:var(--text-dim);font-style:italic">N/A</span>` : `<span class="tab-count">${lCount}</span>`}
-      <button onclick="event.stopPropagation();clearLevel(${i})" title="Clear level" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;line-height:1;padding:1px 2px;border-radius:3px;transition:color 0.15s;margin-left:1px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-dim)'">×</button>
+      <span>${lName}</span> ${isNews ? `<span class="tab-count" style="color:var(--green)">Live</span>` : lNA ? `<span class="tab-count" style="color:var(--text-dim);font-style:italic">N/A</span>` : `<span class="tab-count">${lCount}</span>`}
+      ${isNews ? '' : `<button onclick="event.stopPropagation();clearLevel(${i})" title="Clear level" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;line-height:1;padding:1px 2px;border-radius:3px;transition:color 0.15s;margin-left:1px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-dim)'">×</button>`}
     </div>`;
   });
 
@@ -2092,7 +2104,7 @@ function shuffle(arr) {
 async function generateAllLevels() {
   if (!state.packId || state.generatingAll) return;
   const pack = PACKS.find(p => p.id === state.packId);
-  if (!pack || pack.algo) return;
+  if (!pack || pack.algo || pack.special === 'news') return;
 
   const apiKey = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem('toll_api_key') || '';
   if (!apiKey || !apiKey.startsWith('sk-')) { toast("Set your API key in ✦ Generate first", "error"); return; }
@@ -2126,7 +2138,7 @@ async function bootstrapAll() {
 
   const targets = [];
   PACKS.forEach(pack => {
-    if (pack.algo) return;
+    if (pack.algo || pack.special === 'news') return;
     pack.levels.forEach((name, i) => {
       if (isLevelNA(pack.id, i)) return;
       if ((QB[pack.id] && QB[pack.id][i] && QB[pack.id][i].length > 0)) return;
@@ -2734,12 +2746,13 @@ function renderManagePanel() {
       const count = (QB[p.id] || []).reduce((s,l) => s + l.length, 0);
       const icon = p.icon || cat.icon;
       const isSpecial = !!p.special;
+      const isLive = p.special === 'news';
       html += `<div class="pack-row">
         <div class="pack-row-info">
           <span class="pack-row-icon">${icon}</span>
           <span class="pack-row-name">${p.name}</span>
-          <span class="pack-row-count">${count}q · ${p.levels.length} levels</span>
-          ${isSpecial ? `<span style="font-size:10px;letter-spacing:0.5px;color:var(--gold-dim);font-weight:600;padding:1px 6px;border:1px solid rgba(196,163,90,0.2);border-radius:4px">SPECIAL</span>` : ''}
+          <span class="pack-row-count">${isLive ? 'Live · 1 level' : `${count}q · ${p.levels.length} levels`}</span>
+          ${isLive ? `<span style="font-size:10px;letter-spacing:0.5px;color:var(--green);font-weight:600;padding:1px 6px;border:1px solid rgba(70,160,90,0.2);border-radius:4px">LIVE</span>` : isSpecial ? `<span style="font-size:10px;letter-spacing:0.5px;color:var(--gold-dim);font-weight:600;padding:1px 6px;border:1px solid rgba(196,163,90,0.2);border-radius:4px">SPECIAL</span>` : ''}
         </div>
         ${isSpecial
           ? `<span title="Special packs require a code change to add or remove" style="font-size:16px;color:var(--text-dim);padding:0 6px;cursor:default">🔒</span>`
