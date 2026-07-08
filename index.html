@@ -1100,7 +1100,7 @@ body {
 <div class="header">
   <div class="logo">
     <div class="logo-name">TOLL</div>
-    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-06-29.9</span></div>
+    <div class="logo-sub">Question Bank <span style="opacity:0.4;font-size:9px">· 2026-07-08.1</span></div>
   </div>
   <div class="header-right">
     <div class="header-stat">
@@ -1113,6 +1113,7 @@ body {
     </div>
     <button class="btn-header" onclick="openManagePanel()">Manage</button>
     <button class="btn-header" id="btnBootstrap" onclick="bootstrapAll()" style="border-color:rgba(90,143,175,0.5);color:#5A8FAF">⚡ Bootstrap</button>
+    <button class="btn-header" onclick="dedupeAllPacks()" title="Remove duplicate questions across all levels of every pack (keeps the lowest-level copy)">🧹 Dedupe</button>
 <button class="btn-header" onclick="backup()">Backup ↓</button>
     <button class="btn-header" style="border-color:rgba(196,163,90,0.5)" onclick="document.getElementById('restoreInput').click()">Restore ↑</button>
     <button class="btn-header ai" onclick="openPanel()">✦ Generate</button>
@@ -2166,20 +2167,117 @@ async function bootstrapAll() {
   toast(`Bootstrap complete — ${targets.length} levels generated ✓`, "success");
 }
 
+// ═══════════════════════════════════════════════════
+// DUPLICATE DETECTION (update #5)
+// Same rule as the app-side cleanup of 2026-07-08: a duplicate shares the
+// correct answer AND has identical normalized text or ≥80% token containment.
+// Content-free texts ("Odd one out.") also need an identical answer set;
+// digit-bearing texts ("What is 12 + 7?") don't. Quotes/verbal compare on
+// exact normalized quote/statement text only.
+// ═══════════════════════════════════════════════════
+
+const DUP_STOPWORDS = new Set(["what","is","the","a","an","of","for","does","do","how","many","which","in","to","has","have","are","was","were","it","on","by","and","or","its"]);
+
+function dupNormText(s) {
+  return String(s || '').toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function dupTokens(s) {
+  return new Set(dupNormText(s).split(' ').filter(w => w && !DUP_STOPWORDS.has(w)));
+}
+
+function dupKey(q) {
+  if (q.quote   !== undefined) return { kind: 'quote',  text: dupNormText(q.quote) };
+  if (q.passage !== undefined) return { kind: 'verbal', text: dupNormText(q.statement) };
+  const answers = q.answers || [];
+  const tokens  = dupTokens(q.q);
+  let hasDigit = false;
+  tokens.forEach(t => { if (/\d/.test(t)) hasDigit = true; });
+  return {
+    kind:       'std',
+    text:       dupNormText(q.q),
+    tokens,
+    correctAns: dupNormText(answers[q.correct] ?? ''),
+    answerSet:  answers.map(dupNormText).sort().join('|'),
+    generic:    tokens.size <= 3 && !hasDigit,
+  };
+}
+
+function isDupPair(a, b) {
+  if (a.kind !== b.kind) return false;
+  if (a.kind !== 'std') return !!a.text && a.text === b.text;
+  if (a.correctAns !== b.correctAns) return false;
+  if (a.generic || b.generic) return a.text === b.text && a.answerSet === b.answerSet;
+  if (a.text === b.text) return true;
+  if (!a.tokens.size || !b.tokens.size) return false;
+  let inter = 0;
+  a.tokens.forEach(t => { if (b.tokens.has(t)) inter++; });
+  return inter / Math.min(a.tokens.size, b.tokens.size) >= 0.8;
+}
+
+function packDupKeys(packId) {
+  const keys = [];
+  (QB[packId] || []).forEach(lvl => lvl.forEach(q => keys.push(dupKey(q))));
+  return keys;
+}
+
+// Filters an incoming batch against everything already in the pack (all levels)
+// and against earlier items in the same batch.
+function filterDuplicates(newQs, packId) {
+  const existing = packDupKeys(packId);
+  const kept = [], skipped = [];
+  newQs.forEach(q => {
+    const k = dupKey(q);
+    if (existing.some(e => isDupPair(k, e))) skipped.push(q);
+    else { kept.push(q); existing.push(k); }
+  });
+  return { kept, skipped };
+}
+
+// One-shot cleanup of existing data: scans every non-algo, non-news pack,
+// keeps the first occurrence (lowest level) of each duplicate group.
+function dedupeAllPacks() {
+  let total = 0;
+  const lines = [];
+  PACKS.forEach(pack => {
+    if (pack.algo || pack.special === 'news') return;
+    const levels = QB[pack.id];
+    if (!levels) return;
+    const seen = [];
+    let removed = 0;
+    levels.forEach((lvl, li) => {
+      const kept = [];
+      lvl.forEach(q => {
+        const k = dupKey(q);
+        if (seen.some(e => isDupPair(k, e))) { removed++; }
+        else { kept.push(q); seen.push(k); }
+      });
+      levels[li] = kept;
+    });
+    if (removed) { total += removed; lines.push(`${pack.name} −${removed}`); }
+  });
+  if (total) { save(); renderSidebar(); renderMain(); }
+  toast(total ? `Removed ${total} duplicates ✓ — ${lines.join(', ')}` : 'No duplicates found ✓', 'success');
+}
+
 function buildExistingQsBlock(pack, levelIdx) {
-  const existing = QB[pack.id] && QB[pack.id][levelIdx];
-  if (!existing || existing.length === 0) return '';
+  // The whole pack, not just this level — cross-level duplicates were the
+  // main source of repeated questions ("What is the capital of France?" in
+  // 6 of 9 geography levels before the 2026-07-08 cleanup).
+  const allLevels = QB[pack.id] || [];
   const isVerbal = pack.special === 'verbal';
   const isQuotes = pack.special === 'quotes';
-  let lines;
-  if (isVerbal) {
-    lines = existing.map(q => `- Statement: ${q.statement}`);
-  } else if (isQuotes) {
-    lines = existing.map(q => `- "${q.quote}" — ${q.author}`);
-  } else {
-    lines = existing.map(q => `- ${q.q}`);
-  }
-  return `ALREADY IN THIS LEVEL — do not duplicate or closely resemble any of these:\n${lines.join('\n')}\n\n`;
+  const lines = [];
+  allLevels.forEach((lvl, li) => {
+    const label = pack.levels[li];
+    lvl.forEach(q => {
+      if (isVerbal)      lines.push(`- [${label}] Statement: ${q.statement}`);
+      else if (isQuotes) lines.push(`- [${label}] "${q.quote}" — ${q.author}`);
+      else               lines.push(`- [${label}] ${q.q}`);
+    });
+  });
+  if (lines.length === 0) return '';
+  return `ALREADY IN THIS PACK (across all levels) — do not duplicate or closely resemble ANY of these, including easier/harder variants of the same fact:\n${lines.join('\n')}\n\n`;
 }
 
 async function generateAIForLevel(pack, levelIdx, apiKey) {
@@ -2291,8 +2389,10 @@ Vary which index (0-3) is correct.`;
     }));
   }
 
-  QB[pack.id][levelIdx].push(...newQs);
-  return newQs.length;
+  const dupResult = filterDuplicates(newQs, pack.id);
+  if (dupResult.skipped.length) console.log(`[dedupe] ${pack.name} / ${pack.levels[levelIdx]}: skipped ${dupResult.skipped.length} duplicate(s)`);
+  QB[pack.id][levelIdx].push(...dupResult.kept);
+  return dupResult.kept.length;
 }
 
 // ═══════════════════════════════════════════════════
@@ -2429,11 +2529,24 @@ Vary which index (0-3) is correct.`;
       }));
     }
 
+    // Deterministic dedupe against the whole pack + within the batch —
+    // the prompt asks the AI to avoid duplicates, but this guarantees it.
+    const dupResult = filterDuplicates(newQs, packId);
+    const dupSkipped = dupResult.skipped.length;
+    newQs = dupResult.kept;
+    if (newQs.length === 0) {
+      document.getElementById('previewArea').innerHTML =
+        `<div class="preview-wrap"><div class="preview-header"><span>All ${dupSkipped} generated questions were duplicates of existing ones — nothing to add</span></div></div>`;
+      btn.disabled = false;
+      btnText.textContent = '✦ Generate with AI';
+      return;
+    }
+
     // Show preview
     const verbalOptsP = ['True','False','Cannot Say'];
     let html = `<div class="preview-wrap">
       <div class="preview-header">
-        <span>${newQs.length} ${isQuotes ? 'quotes' : 'questions'} ready</span>
+        <span>${newQs.length} ${isQuotes ? 'quotes' : 'questions'} ready${dupSkipped ? ` · ${dupSkipped} duplicate${dupSkipped === 1 ? '' : 's'} skipped` : ''}</span>
         <span class="ok">✓</span>
       </div>`;
 
@@ -2593,6 +2706,7 @@ function saveNewQ() {
     const quote = quoteEl.value.trim();
     const author = (authorEl ? authorEl.value.trim() : '') || 'Unknown';
     if (!quote) { toast("Quote text can't be empty", "error"); return; }
+    if (packDupKeys(state.packId).some(e => isDupPair(dupKey({ quote }), e))) { toast("This quote is already in the pack", "error"); return; }
     QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), quote, author });
   } else if (pack && pack.special === 'verbal') {
     const passageEl = document.getElementById('nq-passage');
@@ -2604,6 +2718,7 @@ function saveNewQ() {
     if (!statement) { toast("Statement can't be empty", "error"); return; }
     let correct = 0;
     document.querySelectorAll('input[name="nq-correct"]').forEach((r, i) => { if (r.checked) correct = i; });
+    if (packDupKeys(state.packId).some(e => isDupPair(dupKey({ passage, statement }), e))) { toast("This statement is already in the pack", "error"); return; }
     QB[state.packId][state.levelIdx].push({ id: newQid(state.packId), passage, statement, correct });
   } else {
     const textEl = document.getElementById('nq-text');
@@ -2626,6 +2741,7 @@ function saveNewQ() {
     const explanation = explEl ? explEl.value.trim().slice(0, 240) : '';
     const newQ = { id: newQid(state.packId), q: text, answers, correct };
     if (explanation) newQ.explanation = explanation;
+    if (packDupKeys(state.packId).some(e => isDupPair(dupKey(newQ), e))) { toast("Duplicate — an equivalent question already exists in this pack", "error"); return; }
     QB[state.packId][state.levelIdx].push(newQ);
   }
 

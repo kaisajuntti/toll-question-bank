@@ -139,9 +139,14 @@ See `buildPackJSON()` — includes:
 - [x] #4 Export with category metadata + manifest.json
 - [x] #6 Generate all levels at once
 - [x] #7 Manual add + edit question
+- [x] #5 Duplicate detection — three layers (2026-07-08.1):
+  - AI batches are filtered against the whole pack (all levels) + within the batch before insert (both the ✦ Generate panel and Generate All/Bootstrap paths); skipped count shown
+  - AI prompt's existing-questions block now lists the whole pack, not just the target level
+  - 🧹 Dedupe header button cleans existing data (keeps lowest-level copy); manual add form rejects duplicates
+  - Rule: same correct answer + (same normalized text OR ≥80% token containment); content-free texts ("Odd one out.") also need an identical answer set; quotes/verbal compare exact normalized quote/statement
 
 ## Update log — REMAINING
-- [ ] #5 Duplicate detection
+(none)
 
 ## New pack form
 - Category drives level structure (LEVEL_PRESETS)
