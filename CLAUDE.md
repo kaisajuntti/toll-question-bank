@@ -101,7 +101,8 @@ All other packs are created via the Manage panel as custom packs.
 - Bootstrap (⚡ button in header) generates for all empty levels across all non-algo packs; uses pack.defaultGenCount per pack
 - Character limits enforced in add/edit forms: question ≤ 90 chars, answer ≤ 28 chars
 - Character limits also stated in AI prompts for all non-special packs
-- School packs: prompt includes grade→age reference and "quick to evaluate, under 10 seconds" instruction
+- School packs: prompt includes grade→age reference, "quick to evaluate, under 10 seconds" instruction, and a ladder-calibration directive (new questions must sit strictly between the levels below and above; existing questions are shown tagged with their level)
+- All school packs carry per-grade laddered generationInstructions (2026-07-08.2) — each grade has explicit topic + difficulty anchors; edit those instructions rather than re-deriving ladders
 - Assessment Prep packs: prompts reference real hiring test providers (SHL, Korn Ferry, Cubiks, Saville, Watson-Glaser) and lead with "QUALITY MATTERS"
 - Language packs: targetLanguage/nativeLanguage injected into prompt automatically
 
