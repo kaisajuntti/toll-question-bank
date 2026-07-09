@@ -22,7 +22,8 @@ A standalone single-file HTML tool (`index.html`) for managing all quiz content 
 ## Categories
 - School 📚 — Grade 1–12 levels
 - Languages 🌐 — CEFR levels (A1 Beginner → C2 Mastery); packs named "Target / Native" (e.g. "French / English")
-- General Knowledge 🌍 — Easy/Medium/Hard/Expert/Legendary (internal key: `"general knowledge"`)
+- Trivia 🎲 — Easy/Medium/Hard/Expert/Legendary (pub-quiz culture; replaced "General Knowledge" 2026-07-09)
+- Sport ⚽ — Easy/Medium/Hard/Expert/Legendary (split out from the old General Knowledge)
 - Assessment Prep 🎯 — Easy/Medium/Hard/Expert (internal key: `"assessment prep"`)
 - Specials ⭐ — hardcoded only
 
@@ -73,8 +74,10 @@ Only the following packs are hardcoded in PACKS array:
 - **Numerical Reasoning, Abstract Reasoning, Verbal Reasoning** (assessment prep, broad)
 - **Number Sequences, Odd One Out, Analogies, Logic Puzzles** (assessment prep, focused)
 - **The Idiot Question, Bluff, Mindful Quotes** (specials)
-- **Music, Film, Art, Orienteering Facts, Olympic Facts, Athletic Facts** (general-knowledge, Easy–Legendary)
+- **Music, Film & TV, Art & Books, Odd One Out: Games & Toons, Science & Nature, Food & Drink, Famous People** (trivia, Easy–Legendary)
+- **Olympic Facts, Athletic Facts, Orienteering Facts** (sport, Easy–Legendary)
   - Orienteering Facts: Expert/Legendary levels have a bias toward IFK Lidingö SOK and Swedish orienteering 1997–2009
+  - NOTE: Football Facts and History (European) exist in the app but are custom packs in QB localStorage, not the hardcoded PACKS array. Re-exporting them from QB would revert their category — recategorize in Manage first, or leave the app JSONs as source of truth.
 
 All other packs are created via the Manage panel as custom packs.
 
