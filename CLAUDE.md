@@ -73,6 +73,7 @@ Only the following packs are hardcoded in PACKS array:
 - **French / English, Spanish / English, German / English** (languages, CEFR A1–C2)
 - **Numerical Reasoning, Abstract Reasoning, Verbal Reasoning** (assessment prep, broad)
 - **Number Sequences, Odd One Out, Analogies, Logic Puzzles** (assessment prep, focused)
+- **Högskoleprovet: ORD, XYZ, MEK, KVA** (assessment prep, Swedish market) — modelled on 4 of the 8 real Högskoleprovet subtests (chose the ones that map cleanly to single-question MC solvable in 5–30s; skipped LÄS/ELF for passage length, DTK for needing images, NOG pending 5-answer support). ORD is 4 options, not the real test's 5 (see AI generation note below). KVA's 4 answers are always the same fixed comparison strings — generationInstructions asks the AI to balance which one is correct across the pack rather than defaulting to one. Needs `tier: "plusplus"` and `market: "se"` hand-added to the exported JSON (see Key architecture notes).
 - **The Idiot Question, Bluff, Mindful Quotes** (specials)
 - **Music, Film & TV, Art & Books, Odd One Out: Games & Toons, Science & Nature, Food & Drink, Famous People** (trivia, Easy–Legendary)
 - **Olympic Facts, Athletic Facts, Orienteering Facts** (sport, Easy–Legendary)
@@ -92,6 +93,7 @@ All other packs are created via the Manage panel as custom packs.
 - `state.generatingAll` blocks concurrent Generate All runs
 - Build version string is manually incremented in the header subtitle on each commit
 - New pack IDs are derived from name: lowercase, alphanumeric+hyphens. Avoid IDs that match old deleted packs (stored in toll_deleted_packs) — use distinct IDs for new hardcoded packs
+- `buildPackJSON()` does not emit `tier`/`market` — the app's Content Profile fields (see toll repo's `QuizPack.swift`/`ContentProfile.swift`). Every pack that needs one today (all Assessment Prep packs → `tier: "plusplus"`; `english-swedish`, `news-sweden` → `market: "se"`) has it hand-added to the exported JSON after download, not produced by the tool. Re-exporting any of these from QB and dropping the file in as-is will silently strip the tag. If more market/tier-tagged packs keep landing, worth adding real fields + Manage-panel UI for this instead of hand-patching.
 
 ## AI model
 - Model used: `claude-sonnet-4-6` (no date suffix)
@@ -106,8 +108,9 @@ All other packs are created via the Manage panel as custom packs.
 - Character limits also stated in AI prompts for all non-special packs
 - School packs: prompt includes grade→age reference, "quick to evaluate, under 10 seconds" instruction, and a ladder-calibration directive (new questions must sit strictly between the levels below and above; existing questions are shown tagged with their level)
 - All school packs carry per-grade laddered generationInstructions (2026-07-08.2) — each grade has explicit topic + difficulty anchors; edit those instructions rather than re-deriving ladders
-- Assessment Prep packs: prompts reference real hiring test providers (SHL, Korn Ferry, Cubiks, Saville, Watson-Glaser) and lead with "QUALITY MATTERS"
+- Assessment Prep packs: prompts reference real hiring test providers (SHL, Korn Ferry, Cubiks, Saville, Watson-Glaser) and lead with "QUALITY MATTERS"; Högskoleprovet packs lead with "QUALITY MATTERS" too and reference UHR instead
 - Language packs: targetLanguage/nativeLanguage injected into prompt automatically
+- The non-special generation prompt (`generateAI()`'s final `else` branch) hardcodes exactly 4 answers end to end — "4 multiple choice answers" in the instructions, the `["a","b","c","d"]` example, and "Vary which index (0-3) is correct." A pack needing a different answer count (e.g. a faithful 5-option ORD, or NOG's 5 fixed options) needs that branch made count-aware first — a per-pack instruction alone won't reliably override it.
 
 ## N/A levels
 - Toggle in the level settings bar ("Skip in gen all" button)
