@@ -33,79 +33,118 @@
 <div class="wrap">
 
   <h1>Toll — Privacy Policy</h1>
-  <div class="sub">Last updated: 28 June 2026</div>
+  <div class="sub">Last updated: 18 July 2026</div>
 
-  <p class="lead">Toll is built to be private. Almost everything the app records stays on your
-  device and is never sent anywhere. The only data that leaves your device is the weekly
-  summary email you choose to turn on, and — if you opt in — a made-up nickname and quiz
-  scores for competitions. We do not sell data, show ads, or use third-party tracking.</p>
+  <p class="lead">Toll is built to be private. There are no accounts and no sign-in, and
+  almost everything the app records stays on your device. Only two things can ever leave it,
+  and both are optional and controlled by a parent: the progress summary email, and anonymous
+  learning stats used for comparisons and daily competitions. We do not sell data, show ads,
+  or use third-party tracking.</p>
 
   <h2>Who this applies to</h2>
-  <p>Toll is set up and managed by a parent or guardian and used to help with learning and
-  screen-time habits. This policy covers the Toll iOS app.</p>
+  <p>Toll is an iOS app, set up and managed by a parent or guardian, that asks a quiz question
+  before opening selected apps — turning screen time into learning time. This policy covers
+  the Toll iOS app and its supporting services.</p>
 
   <h2>What stays on your device</h2>
-  <p>The following is stored only on your device and is never transmitted to us or anyone else:</p>
+  <p>The following is stored only on your device and is never transmitted to us or anyone
+  else, except as part of the two optional features described below:</p>
   <ul>
-    <li>Quiz history, scores, and learning progress (questions mastered, tests passed)</li>
-    <li>Your learning subjects and the list of apps you choose to gate</li>
-    <li>App settings, theme, and your PIN</li>
-    <li>Your consent choices, and whether the age check passed (a yes/no plus a short label —
+    <li>Quiz history, scores, streaks, mastery progress, and test results</li>
+    <li>Your learning groups — the subjects you study and the apps each one gates</li>
+    <li>App settings, theme, and the parent's PIN</li>
+    <li>Your consent choices, and the age-check result (a yes/no plus a short label —
         never a birthdate)</li>
   </ul>
   <p>Deleting the app removes all of this.</p>
 
+  <h2>Screen Time and app locking</h2>
+  <p>Toll uses Apple's Screen Time technology (Family Controls and Device Activity) to notice
+  when a gated app is opened and to apply or lift the quiz lock. This runs entirely on your
+  device through Apple's framework. Toll never sees or transmits which apps you use beyond
+  what you explicitly configure, and the list of gated apps stays on the device.</p>
+
   <h2>Age check</h2>
   <p>To confirm the app is being set up appropriately, Toll uses Apple's Declared Age Range
-  feature. Apple returns only an age <em>range</em> (for example, "16 or older") — never a date
-  of birth. Toll stores only whether the check passed, on your device. Nothing about your age is
-  sent to us.</p>
+  feature. Apple returns only an age <em>range</em> (for example, "16 or older") — never a
+  date of birth. Toll stores only whether the check passed and a coarse age band, on your
+  device. Nothing about your age is sent to us beyond that band (see the anonymous stats
+  section below).</p>
 
-  <h2>Weekly summary email (optional)</h2>
-  <p>If a parent turns on the summary email, Toll sends a learning summary (such as questions
-  answered, screen-time totals, and per-subject progress) to the email address(es) the parent
-  enters. To deliver it, this information passes through our backend provider (Supabase) and an
-  email delivery service (Google/Gmail). It is used only to send that email — nothing else — and
-  you can turn it off any time in Settings, which stops all future emails.</p>
+  <h2>Progress summary email (optional)</h2>
+  <p>A parent can turn on a daily or weekly summary email in Settings. When it's on, the app
+  sends a learning summary to the email address(es) the parent enters — the parent's address
+  and, optionally, the learner's own address. The summary includes the learner's first name
+  (as entered in the app, to say whose stats these are), questions answered, accuracy,
+  subjects and levels progressed, tests passed, unlock counts, and time spent in the gated
+  apps (including those apps' names).</p>
+  <p>To deliver it, this summary passes through our backend (Supabase) and is sent from a
+  dedicated Gmail account. It is used only to send that email — we don't keep the stats after
+  the email is sent — and you can turn it off any time in Settings, which stops all future
+  emails.</p>
 
-  <h2>Competitions (optional, opt-in)</h2>
-  <p>If a parent allows competitions, Toll stores a <strong>made-up nickname</strong> (never a
-  real name) together with quiz scores on our backend (Supabase) so players can appear on a
-  leaderboard. No real names, contacts, or other personal details are collected for this. You can
-  turn competitions off any time in <code>Settings → Competitions</code>, and you can ask us to
-  delete a nickname and its scores using the contact below.</p>
+  <h2>Anonymous comparisons and competitions (optional, parent consent)</h2>
+  <p>With a parent's consent, Toll can show how a learner's progress compares with other
+  learners their age, and let them join daily competitions (score-based challenges). To power
+  this, the app submits learning stats — such as questions answered, accuracy, questions
+  mastered, unlock counts, gated screen-time minutes, and daily competition scores — to our
+  backend under a <strong>random anonymous ID</strong> created on the device, together with a
+  coarse age band ("under 16" / "16 or older").</p>
+  <ul>
+    <li>No name, nickname, email, or account is attached — there is nothing to link the ID
+        to a person.</li>
+    <li>There is no public leaderboard or profile. The backend only ever returns aggregates
+        (population counts, top scores, percentiles) — it is built so that no individual's
+        data can be read back, by us or anyone else.</li>
+    <li>Consent can be withdrawn any time in Settings, which stops all submissions. You can
+        also ask us to delete the data stored under your device's anonymous ID using the
+        contact below.</li>
+  </ul>
+
+  <h2>Downloaded content</h2>
+  <p>Some quiz content, such as the daily news quiz, is downloaded from our backend. This is
+  a download only — no personal data or usage data is sent with it.</p>
 
   <h2>Children's privacy</h2>
-  <p>Toll is parent-administered: setup requires a parent, an age check gates access, and a parent
-  provides consent before any optional data (the email or competitions) is collected. We do not
-  show advertising, use advertising or analytics trackers, or collect location or contacts.</p>
+  <p>Toll is parent-administered: setup requires a parent, an age check gates access, and a
+  parent decides whether the optional email or anonymous stats are enabled. We collect no
+  more from children than described above, we do not show advertising or use advertising or
+  analytics trackers, and we never use children's data for marketing.</p>
 
   <h2>What we do not do</h2>
   <ul>
-    <li>We do not sell or rent your data.</li>
-    <li>We do not use third-party advertising or tracking SDKs.</li>
+    <li>We do not sell or rent your data, and we do not share it with advertisers or data
+        brokers.</li>
+    <li>We do not use third-party advertising, analytics, or tracking SDKs.</li>
     <li>We do not collect your location, contacts, photos, or browsing history.</li>
+    <li>We do not require an account, and we never see your Apple ID.</li>
   </ul>
 
   <h2>Service providers</h2>
   <ul>
     <li><strong>Apple</strong> — provides the on-device Screen Time and age-range features.</li>
-    <li><strong>Supabase</strong> — hosts the backend used for the summary email and competitions.</li>
+    <li><strong>Supabase</strong> — hosts the backend used for the summary email, anonymous
+        stats, and downloadable quiz content. Like any internet service, it processes
+        standard connection data (such as IP addresses) to serve requests; we never link
+        this to learning stats.</li>
     <li><strong>Google (Gmail)</strong> — delivers the summary email.</li>
   </ul>
+  <p>These providers act on our behalf to run the app and may not use the data for their own
+  purposes.</p>
 
   <h2>Keeping and deleting data</h2>
   <ul>
     <li><strong>On-device data:</strong> deleted when you delete the app.</li>
-    <li><strong>Summary email:</strong> stop it any time in Settings; we don't retain the stats
-        after the email is sent.</li>
-    <li><strong>Competitions:</strong> turn it off in Settings, or contact us to delete a nickname
-        and its scores.</li>
+    <li><strong>Summary email:</strong> turn it off any time in Settings; we don't retain
+        the stats after each email is sent.</li>
+    <li><strong>Anonymous stats:</strong> withdraw consent in Settings to stop submissions,
+        or contact us to delete the data stored under your anonymous ID.</li>
   </ul>
 
   <h2>Your rights</h2>
-  <p>You can access, correct, or delete your data, and withdraw consent at any time. For anything
-  in this policy, or to request deletion, contact us at the address below.</p>
+  <p>You can access, correct, or delete your data, and withdraw consent, at any time. Most of
+  this you can do directly in the app; for anything else — including deletion requests —
+  contact us at the address below.</p>
 
   <h2>Contact</h2>
   <p>Email: <a href="mailto:tollapp.stats@gmail.com">tollapp.stats@gmail.com</a></p>
