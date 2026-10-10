@@ -9,6 +9,12 @@ A standalone single-file HTML tool (`index.html`) for managing all quiz content 
 - Single file: index.html — all HTML, CSS, JS in one file
 - Build version shown in header: `QUESTION BANK · YYYY-MM-DD.N` — increment N with each commit to verify cache
 
+## Privacy policy page (`privacy.html`) — used by the Toll app's TestFlight / App Store listing
+- Live at https://kaisajuntti.github.io/toll-question-bank/privacy.html (GitHub Pages serves `main`; this exact URL is entered in App Store Connect — do not rename or move the file).
+- It is **not** part of the QB tool. It's the public privacy policy for the Toll iOS app, rewritten 2026-07-18 from an audit of the app's code, and must keep matching it: email summary (verified by code, Gmail SMTP via Supabase, no Resend), anonymous comparison stats (random install UUID + age band, consent-gated, aggregate-only reads), Declared Age Range, Screen Time on-device, no accounts, no ad/analytics SDKs. Contact: tollapp.stats@gmail.com.
+- When the Toll app's data flows change, update this page, bump "Last updated", and re-check the App Privacy label (see the toll repo's `CI.md`).
+- A marketing/landing page is deliberately deferred; plan is a separate repo near App Store launch, not this one.
+
 ## Data storage
 - Questions: `toll_qb` (QB object: packId → levelIndex → [questions])
 - API key: `toll_api_key`
